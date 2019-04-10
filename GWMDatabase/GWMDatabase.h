@@ -16,4 +16,8 @@ FOUNDATION_EXPORT const unsigned char GWMDatabaseVersionString[];
 
 // In this header, you should import all the public headers of your framework using statements like #import <GWMDatabase/PublicHeader.h>
 
+#import <GWMDatabase/GWMDatabaseController.h>
+#import <GWMDatabase/GWMDatabaseResult.h>
+#import <GWMDatabase/GWMDataItem.h>
+#import <GWMDatabase/GWMRelationshipItem.h>
 

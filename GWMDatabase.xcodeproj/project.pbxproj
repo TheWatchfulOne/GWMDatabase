@@ -8,12 +8,32 @@
 
 /* Begin PBXBuildFile section */
 		1A40153C225E586300C7833A /* GWMDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A40153A225E586300C7833A /* GWMDatabase.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1A40154D225E5B2D00C7833A /* GWMDatabaseController.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A401543225E5B2D00C7833A /* GWMDatabaseController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1A40154E225E5B2D00C7833A /* GWMDatabaseHelperItems.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A401544225E5B2D00C7833A /* GWMDatabaseHelperItems.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1A40154F225E5B2D00C7833A /* GWMDatabaseHelperItems.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A401545225E5B2D00C7833A /* GWMDatabaseHelperItems.m */; };
+		1A401550225E5B2D00C7833A /* GWMRelationshipItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A401546225E5B2D00C7833A /* GWMRelationshipItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1A401551225E5B2D00C7833A /* GWMDatabaseResult.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A401547225E5B2D00C7833A /* GWMDatabaseResult.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1A401552225E5B2D00C7833A /* GWMDataItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A401548225E5B2D00C7833A /* GWMDataItem.m */; };
+		1A401553225E5B2D00C7833A /* GWMDataItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A401549225E5B2D00C7833A /* GWMDataItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1A401554225E5B2D00C7833A /* GWMRelationshipItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A40154A225E5B2D00C7833A /* GWMRelationshipItem.m */; };
+		1A401555225E5B2D00C7833A /* GWMDatabaseController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A40154B225E5B2D00C7833A /* GWMDatabaseController.m */; };
+		1A401556225E5B2D00C7833A /* GWMDatabaseResult.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A40154C225E5B2D00C7833A /* GWMDatabaseResult.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		1A401537225E586300C7833A /* GWMDatabase.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = GWMDatabase.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A40153A225E586300C7833A /* GWMDatabase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GWMDatabase.h; sourceTree = "<group>"; };
 		1A40153B225E586300C7833A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1A401543225E5B2D00C7833A /* GWMDatabaseController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GWMDatabaseController.h; sourceTree = "<group>"; };
+		1A401544225E5B2D00C7833A /* GWMDatabaseHelperItems.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GWMDatabaseHelperItems.h; sourceTree = "<group>"; };
+		1A401545225E5B2D00C7833A /* GWMDatabaseHelperItems.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GWMDatabaseHelperItems.m; sourceTree = "<group>"; };
+		1A401546225E5B2D00C7833A /* GWMRelationshipItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GWMRelationshipItem.h; sourceTree = "<group>"; };
+		1A401547225E5B2D00C7833A /* GWMDatabaseResult.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GWMDatabaseResult.h; sourceTree = "<group>"; };
+		1A401548225E5B2D00C7833A /* GWMDataItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GWMDataItem.m; sourceTree = "<group>"; };
+		1A401549225E5B2D00C7833A /* GWMDataItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GWMDataItem.h; sourceTree = "<group>"; };
+		1A40154A225E5B2D00C7833A /* GWMRelationshipItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GWMRelationshipItem.m; sourceTree = "<group>"; };
+		1A40154B225E5B2D00C7833A /* GWMDatabaseController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GWMDatabaseController.m; sourceTree = "<group>"; };
+		1A40154C225E5B2D00C7833A /* GWMDatabaseResult.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GWMDatabaseResult.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -47,9 +67,27 @@
 			isa = PBXGroup;
 			children = (
 				1A40153A225E586300C7833A /* GWMDatabase.h */,
+				1A401543225E5B2D00C7833A /* GWMDatabaseController.h */,
+				1A40154B225E5B2D00C7833A /* GWMDatabaseController.m */,
+				1A401544225E5B2D00C7833A /* GWMDatabaseHelperItems.h */,
+				1A401545225E5B2D00C7833A /* GWMDatabaseHelperItems.m */,
+				1A401547225E5B2D00C7833A /* GWMDatabaseResult.h */,
+				1A40154C225E5B2D00C7833A /* GWMDatabaseResult.m */,
+				1A401558225E5D3100C7833A /* Model */,
 				1A40153B225E586300C7833A /* Info.plist */,
 			);
 			path = GWMDatabase;
+			sourceTree = "<group>";
+		};
+		1A401558225E5D3100C7833A /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				1A401549225E5B2D00C7833A /* GWMDataItem.h */,
+				1A401548225E5B2D00C7833A /* GWMDataItem.m */,
+				1A401546225E5B2D00C7833A /* GWMRelationshipItem.h */,
+				1A40154A225E5B2D00C7833A /* GWMRelationshipItem.m */,
+			);
+			path = Model;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -59,7 +97,12 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A40154E225E5B2D00C7833A /* GWMDatabaseHelperItems.h in Headers */,
+				1A401551225E5B2D00C7833A /* GWMDatabaseResult.h in Headers */,
 				1A40153C225E586300C7833A /* GWMDatabase.h in Headers */,
+				1A401553225E5B2D00C7833A /* GWMDataItem.h in Headers */,
+				1A40154D225E5B2D00C7833A /* GWMDatabaseController.h in Headers */,
+				1A401550225E5B2D00C7833A /* GWMRelationshipItem.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -130,6 +173,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A401552225E5B2D00C7833A /* GWMDataItem.m in Sources */,
+				1A401556225E5B2D00C7833A /* GWMDatabaseResult.m in Sources */,
+				1A401554225E5B2D00C7833A /* GWMRelationshipItem.m in Sources */,
+				1A401555225E5B2D00C7833A /* GWMDatabaseController.m in Sources */,
+				1A40154F225E5B2D00C7833A /* GWMDatabaseHelperItems.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
