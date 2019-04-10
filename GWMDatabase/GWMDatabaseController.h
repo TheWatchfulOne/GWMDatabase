@@ -95,6 +95,7 @@ extern NSString * const GWMPK_VersionOfMainDatabase;
 extern NSString * const GWMPK_VersionOfUserDatabase;
 extern NSString * const GWMPK_UserDatabaseSchemaVersion;
 
+#pragma mark Notification Keys
 extern NSString * const GWMDBStatementKey;
 extern NSString * const GWMDatabaseControllerDidReadDataNotification;
 extern NSString * const GWMDatabaseControllerDidUpdateDataNotification;

@@ -87,6 +87,7 @@ NSString * const GWMPK_VersionOfMainDatabase = @"GWMPK_VersionOfMainDatabase";
 NSString * const GWMPK_VersionOfUserDatabase = @"GWMPK_VersionOfUserDatabase";
 NSString * const GWMPK_UserDatabaseSchemaVersion = @"GWMPK_UserDatabaseSchemaVersion";
 
+#pragma mark Notification Keys
 NSString * const GWMDBStatementKey = @"GWMDBStatementKey";
 NSString * const GWMDatabaseControllerDidReadDataNotification = @"GWMDatabaseControllerDidReadDataNotification";
 NSString * const GWMDatabaseControllerDidUpdateDataNotification = @"GWMDatabaseControllerDidUpdateDataNotification";
