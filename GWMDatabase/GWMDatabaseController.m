@@ -128,19 +128,6 @@ NSString * const GWMDatabaseControllerDidFinishUserDataMigrationNotification = @
     return _sharedDatabaseController;
 }
 
-//-(instancetype)init
-//{
-//    if (self = [super init]) {
-//        [self registerNotifications];
-//    }
-//    return self;
-//}
-
--(void)applicationDidReceiveMemoryWarning
-{
-    [self closeDatabase];
-}
-
 -(NSDateFormatter *)dateFormatter
 {
     if (!_dateFormatter) {
@@ -164,7 +151,7 @@ NSString * const GWMDatabaseControllerDidFinishUserDataMigrationNotification = @
 
 #pragma mark - Introspection
 
--(int)databaseVersionAtPath:(NSString *)databaseFilePath withExtension:(NSString *)extension
+-(int)databaseVersionAtPath:(NSString *)filePath withExtension:(NSString *)extension
 {
     /*
      this method temporarily opens a database to get PRAGMA user_version and then closes the database
@@ -172,7 +159,7 @@ NSString * const GWMDatabaseControllerDidFinishUserDataMigrationNotification = @
     
 //    [self closeDatabase];
     
-    NSString *databasePathNS = [[NSBundle mainBundle] pathForResource:databaseFilePath ofType:extension];
+    NSString *databasePathNS = [[NSBundle mainBundle] pathForResource:filePath ofType:extension];
     const char *databasePathC = [databasePathNS UTF8String];
     int databaseVersion = -1;
     
