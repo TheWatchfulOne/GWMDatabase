@@ -17,9 +17,8 @@ typedef NS_ENUM(NSInteger, GWMReadWriteDestination) {
     GWMReadWriteCloud
 };
 
-@class GWMViewController;
-@class GWMViewModel;
-@class GWMDetailTableViewModel;
+@class GWMDatabaseController;
+@class GWMDataItem;
 
 typedef void (^GWMSaveDataItemCompletionBlock)(NSInteger itemID, NSError *_Nullable error);
 
@@ -86,10 +85,6 @@ typedef void (^GWMSaveDataItemCompletionBlock)(NSInteger itemID, NSError *_Nulla
 +(NSString *)tableString;
 ///@return An NSString representing the alias to use for the table represented by the class.
 +(NSString *)tableAlias;
-
--(__kindof GWMViewModel *)detailViewModel;
-///@return A UIImage.
--(UIImage *_Nullable)mainImage;
 /*!
  * @param key An NSString representation of a property of the reciever whose return type is an NSArray, NSDictionary, or NSSet. Cannot be nil.
  * @return An NSInteger that tells the count of the collection.
@@ -98,24 +93,9 @@ typedef void (^GWMSaveDataItemCompletionBlock)(NSInteger itemID, NSError *_Nulla
 
 -(NSString *_Nullable)searchPlaceholderString;
 -(NSArray<NSString *> *_Nullable)searchScopeButtonTitles;
-/*!
- * @return An NSArray of UIMenuItem objects that are specific to the receiver.
- */
--(NSArray<UIMenuItem *> *_Nullable)menuItems;
-/*!
- * @return An NSArray of UITableViewRowAction objects that are specific to the receiver.
- */
--(NSArray<UITableViewRowAction *>*_Nullable)tableRowActions;
-/*!
- * @return An NSArray of UIContextualAction objects that are specific to the receiver.
- * @availability iOS 11 and later
- */
--(NSArray<UIContextualAction *>*_Nullable)contextualActions NS_AVAILABLE_IOS(11_0);
 
 -(NSString *_Nullable)addedInAppVersion;
 -(BOOL)isNew;
-
--(GWMViewController *)detailViewController;
 
 /*!
  * @return An NSDictionary of entries where the key is the class and the value is a NSString representation of the selector to use.
@@ -144,22 +124,22 @@ typedef void (^GWMSaveDataItemCompletionBlock)(NSInteger itemID, NSError *_Nulla
 @end
 
 
-@protocol GWMSearchableDataItem
+//@protocol GWMSearchableDataItem
+//
+//-(NSString *)searchableStringWithObject:(__kindof GWMDataItem *)object;
+//-(NSString *)scopeStringKey;
+//-(BOOL)isInScope:(NSString *)scope;
+//
+//@end
 
--(NSString *)searchableStringWithObject:(__kindof GWMDataItem *)object;
--(NSString *)scopeStringKey;
--(BOOL)isInScope:(NSString *)scope;
-
-@end
-
-@protocol GWMCollationDataItem
-
--(NSString *)alphabeticalCollationValue;
--(NSString *)numericalCollationValue;
-
--(NSComparisonResult)numericalCompare:(__kindof GWMDataItem *)item;
-
-@end
+//@protocol GWMCollationDataItem
+//
+//-(NSString *)alphabeticalCollationValue;
+//-(NSString *)numericalCollationValue;
+//
+//-(NSComparisonResult)numericalCompare:(__kindof GWMDataItem *)item;
+//
+//@end
 
 extern const NSInteger kGWMNewRecordValue;
 extern const NSInteger kGWMColumnSequenceItemClass;
@@ -204,8 +184,9 @@ extern NSString * const GWMErrorDomainDataModel;
  * @class GWMDataItem
  * @discussion A GWMDataItem object represents a row in a database table. This class is usable as is, but you might wish to create a custom subclass.
  */
-@interface GWMDataItem : NSObject<GWMDataItem, GWMSearchableDataItem, GWMCollationDataItem>
+@interface GWMDataItem : NSObject<GWMDataItem>
 
+@property (nonatomic, readonly) GWMDatabaseController *databaseController;
 ///@discussion An NSInteger that identifies the GWMDataItem in a UITableView.
 @property (nonatomic, readonly) NSString *_Nullable rowIdentifier;
 //@property (nonatomic, readonly) NSString *_Nullable title;

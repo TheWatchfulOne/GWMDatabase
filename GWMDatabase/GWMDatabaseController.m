@@ -9,9 +9,6 @@
 #import "GWMDatabaseController.h"
 #import "GWMDatabaseResult.h"
 #import "GWMDataItem.h"
-#import "GWMNotificationConstants.h"
-#import "GWMPreferenceConstants.h"
-#import "GWMExceptionConstants.h"
 #import "GWMDatabaseHelperItems.h"
 
 @import os.log;
@@ -76,6 +73,26 @@ NSString * const GWMSQLiteErrorFinalizingStatement = @"Error finalizing statemen
 #pragma mark Error Domain
 NSString * const GWMErrorDomainDatabase = @"GWMErrorDomainDatabase";
 
+#pragma mark Exceptions
+NSString * const GWMPreparingStatementException = @"GWMPreparingStatementException";
+NSString * const GWMExecutingStatementException = @"GWMExecutingStatementException";
+NSString * const GWMFinalizingStatementException = @"GWMFinalizingStatementException";
+
+#pragma mark Preferences
+NSString * const GWMPK_MainDatabaseName = @"GWMPK_MainDatabaseName";
+NSString * const GWMPK_MainDatabaseExtension = @"GWMPK_MainDatabaseExtension";
+NSString * const GWMPK_UserDatabaseName = @"GWMPK_UserDatabaseName";
+NSString * const GWMPK_UserDatabaseAlias = @"GWMPK_UserDatabaseAlias";
+NSString * const GWMPK_VersionOfMainDatabase = @"GWMPK_VersionOfMainDatabase";
+NSString * const GWMPK_VersionOfUserDatabase = @"GWMPK_VersionOfUserDatabase";
+NSString * const GWMPK_UserDatabaseSchemaVersion = @"GWMPK_UserDatabaseSchemaVersion";
+
+NSString * const GWMDBStatementKey = @"GWMDBStatementKey";
+NSString * const GWMDatabaseControllerDidReadDataNotification = @"GWMDatabaseControllerDidReadDataNotification";
+NSString * const GWMDatabaseControllerDidUpdateDataNotification = @"GWMDatabaseControllerDidUpdateDataNotification";
+NSString * const GWMDatabaseControllerDidBeginUserDataMigrationNotification = @"GWMDatabaseControllerDidBeginUserDataMigrationNotification";
+NSString * const GWMDatabaseControllerDidFinishUserDataMigrationNotification = @"GWMDatabaseControllerDidFinishUserDataMigrationNotification";
+
 @interface GWMDatabaseController ()
 {
 //    sqlite3 *_database;
@@ -111,17 +128,25 @@ NSString * const GWMErrorDomainDatabase = @"GWMErrorDomainDatabase";
     return _sharedDatabaseController;
 }
 
--(instancetype)init
-{
-    if (self = [super init]) {
-        [self registerNotifications];
-    }
-    return self;
-}
+//-(instancetype)init
+//{
+//    if (self = [super init]) {
+//        [self registerNotifications];
+//    }
+//    return self;
+//}
 
 -(void)applicationDidReceiveMemoryWarning
 {
     [self closeDatabase];
+}
+
+-(NSDateFormatter *)dateFormatter
+{
+    if (!_dateFormatter) {
+        _dateFormatter = [NSDateFormatter new];
+    }
+    return _dateFormatter;
 }
 
 #pragma mark - SQLite Version
@@ -135,18 +160,6 @@ NSString * const GWMErrorDomainDatabase = @"GWMErrorDomainDatabase";
 {
     const char *versionC = sqlite3_libversion();
     return [NSString stringWithUTF8String:versionC];
-}
-
-#pragma mark - Register And Unregister Notifications
-
--(void)registerNotifications
-{
-    [self.notificationCenter addObserver:self selector:@selector(applicationDidReceiveMemoryWarning) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
-}
-
--(void)unregisterNotifications
-{
-    [self.notificationCenter removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
 }
 
 #pragma mark - Introspection

@@ -8,6 +8,7 @@
 
 #import "GWMRelationshipItem.h"
 #import "GWMDatabaseResult.h"
+#import "GWMDatabaseController.h"
 
 NSString * const GWMTableColumnDataItemKey = @"itemKey";
 NSString * const GWMTableColumnRelatedDataItemKey = @"relatedItemKey";

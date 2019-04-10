@@ -7,9 +7,8 @@
 //
 
 #import "GWMDataItem.h"
-#import "GWMConstants.h"
-#import "GWMDetailTableViewModel.h"
 #import "GWMDatabaseResult.h"
+#import "GWMDatabaseController.h"
 
 const NSInteger kGWMNewRecordValue = -1;
 const NSInteger kGWMColumnSequenceItemClass = -2;
@@ -40,66 +39,71 @@ NSString * const GWMErrorDomainDataModel = @"GWMErrorDomainDataModel";
 
 #pragma mark - GWMSearchableDataObject
 
--(NSString *)searchableStringWithObject:(GWMDataItem *)object
-{
-    return self.name;
-}
-
--(NSString *)scopeStringKey
-{
-    return GWMTRV_ZeroLengthString;
-}
-
--(BOOL)isInScope:(NSString *)scope
-{
-    return NO;
-}
+//-(GWMDatabaseController *)databaseController
+//{
+//
+//}
+//
+//-(NSString *)searchableStringWithObject:(GWMDataItem *)object
+//{
+//    return self.name;
+//}
+//
+//-(NSString *)scopeStringKey
+//{
+//    return GWMTRV_ZeroLengthString;
+//}
+//
+//-(BOOL)isInScope:(NSString *)scope
+//{
+//    return NO;
+//}
 
 #pragma mark - GWMCollationDataObject methods
 
--(NSString *)alphabeticalCollationValue
-{
-    return [self collationTitle];
-}
-
--(NSString *)collationTitle
-{
-    if ([self.name length] >= 4) {
-        
-        NSString *string = [self.name substringToIndex:4];
-        
-        if ([string isEqualToString:@"The "]) {
-            
-            // Trim 'The ' from the beginning of the title
-            NSString *collationTitle = [self.name substringFromIndex:4];
-            return collationTitle;
-            
-        } else {
-            
-            return self.name;
-        }
-        
-    } else {
-        
-        return self.name;
-    }
-}
-
--(NSString *)numericalCollationValue
-{
-    return [NSString stringWithFormat:@"%ld", (long)self.itemID];
-}
-
--(NSComparisonResult)numericalCompare:(GWMDataItem *)item
-{
-    if (self.itemID < item.itemID){
-        return NSOrderedAscending;
-    } else if (self.itemID == item.itemID){
-        return NSOrderedSame;
-    } else {
-        return NSOrderedDescending;
-    }
-}
+//-(NSString *)alphabeticalCollationValue
+//{
+//    return [self collationTitle];
+//}
+//
+//-(NSString *)collationTitle
+//{
+//    if ([self.name length] >= 4) {
+//
+//        NSString *string = [self.name substringToIndex:4];
+//
+//        if ([string isEqualToString:@"The "]) {
+//
+//            // Trim 'The ' from the beginning of the title
+//            NSString *collationTitle = [self.name substringFromIndex:4];
+//            return collationTitle;
+//
+//        } else {
+//
+//            return self.name;
+//        }
+//
+//    } else {
+//
+//        return self.name;
+//    }
+//}
+//
+//-(NSString *)numericalCollationValue
+//{
+//    return [NSString stringWithFormat:@"%ld", (long)self.itemID];
+//}
+//
+//-(NSComparisonResult)numericalCompare:(GWMDataItem *)item
+//{
+//    if (self.itemID < item.itemID){
+//        return NSOrderedAscending;
+//    } else if (self.itemID == item.itemID){
+//        return NSOrderedSame;
+//    } else {
+//        return NSOrderedDescending;
+//    }
+//}
 
 #pragma mark - Testing Equality
 
@@ -397,16 +401,6 @@ NSString * const GWMErrorDomainDataModel = @"GWMErrorDomainDataModel";
     return NO;
 }
 
--(__kindof GWMDetailTableViewModel *)detailViewModel
-{
-    return [GWMDetailTableViewModel viewModelWithDataItem:self];
-}
-
--(UIImage *)mainImage
-{
-    return nil;
-}
-
 -(NSString *)searchPlaceholderString
 {
     return @"Search By Title Or Subtitle";
@@ -427,21 +421,6 @@ NSString * const GWMErrorDomainDataModel = @"GWMErrorDomainDataModel";
         return itemsSet.count;
     }
     return 0;
-}
-
--(NSArray<UIMenuItem *> *)menuItems
-{
-    return @[];
-}
-
--(NSArray<UITableViewRowAction *> *)tableRowActions
-{
-    return @[];
-}
-
--(NSArray<UIContextualAction*>*)contextualActions  NS_AVAILABLE_IOS(11_0)
-{
-    return @[];
 }
 
 -(BOOL)isNew

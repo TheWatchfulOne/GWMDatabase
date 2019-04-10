@@ -81,14 +81,37 @@ extern NSString * const GWMSQLiteErrorFinalizingStatement;
 #pragma mark Error Domain
 extern NSString * const GWMErrorDomainDatabase;
 
+#pragma mark Exceptions
+extern NSString * const GWMPreparingStatementException;
+extern NSString * const GWMExecutingStatementException;
+extern NSString * const GWMFinalizingStatementException;
+
+#pragma mark Preferences
+extern NSString * const GWMPK_MainDatabaseName;
+extern NSString * const GWMPK_MainDatabaseExtension;
+extern NSString * const GWMPK_UserDatabaseName;
+extern NSString * const GWMPK_UserDatabaseAlias;
+extern NSString * const GWMPK_VersionOfMainDatabase;
+extern NSString * const GWMPK_VersionOfUserDatabase;
+extern NSString * const GWMPK_UserDatabaseSchemaVersion;
+
+extern NSString * const GWMDBStatementKey;
+extern NSString * const GWMDatabaseControllerDidReadDataNotification;
+extern NSString * const GWMDatabaseControllerDidUpdateDataNotification;
+extern NSString * const GWMDatabaseControllerDidBeginUserDataMigrationNotification;
+extern NSString * const GWMDatabaseControllerDidFinishUserDataMigrationNotification;
+
 /*!
  * @class GWMDatabaseController
  * @discussion A class that lets you interact with a SQLite database. GWMDatabaseController has methods for performing DML operations such as creating, reading, updating and deleting records from a SQLite database. Currently, you must use a SQLite editor for performing any DDL operations such as creating or droping tables.
  */
 @interface GWMDatabaseController : NSObject
 {
+    NSDateFormatter *_dateFormatter;
     NSArray<NSString*> *_attachedDatabases;
 }
+
+@property (nonatomic, readonly) NSDateFormatter *dateFormatter;
 
 @property (nonatomic, strong) NSString *_Nullable mainDatabaseName;
 @property (nonatomic, strong) NSString *_Nullable mainDatabaseExtension;
@@ -98,6 +121,8 @@ extern NSString * const GWMErrorDomainDatabase;
 @property (nonatomic, strong) NSDictionary<NSString*,GWMTableDefinition*> *_Nonnull classToTableDefinitionMapping;
 
 @property (nonatomic) BOOL foreignKeysEnabled;
+
++(instancetype)sharedController;
 
 #pragma mark - SQLite Version
 /*!
