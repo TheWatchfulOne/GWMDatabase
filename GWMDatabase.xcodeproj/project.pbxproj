@@ -18,6 +18,7 @@
 		1A401554225E5B2D00C7833A /* GWMRelationshipItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A40154A225E5B2D00C7833A /* GWMRelationshipItem.m */; };
 		1A401555225E5B2D00C7833A /* GWMDatabaseController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A40154B225E5B2D00C7833A /* GWMDatabaseController.m */; };
 		1A401556225E5B2D00C7833A /* GWMDatabaseResult.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A40154C225E5B2D00C7833A /* GWMDatabaseResult.m */; };
+		1A40155B225EE40000C7833A /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A40155A225EE40000C7833A /* libsqlite3.tbd */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +35,7 @@
 		1A40154A225E5B2D00C7833A /* GWMRelationshipItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GWMRelationshipItem.m; sourceTree = "<group>"; };
 		1A40154B225E5B2D00C7833A /* GWMDatabaseController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GWMDatabaseController.m; sourceTree = "<group>"; };
 		1A40154C225E5B2D00C7833A /* GWMDatabaseResult.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GWMDatabaseResult.m; sourceTree = "<group>"; };
+		1A40155A225EE40000C7833A /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -41,6 +43,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A40155B225EE40000C7833A /* libsqlite3.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -52,6 +55,7 @@
 			children = (
 				1A401539225E586300C7833A /* GWMDatabase */,
 				1A401538225E586300C7833A /* Products */,
+				1A401559225EE3FF00C7833A /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -88,6 +92,14 @@
 				1A40154A225E5B2D00C7833A /* GWMRelationshipItem.m */,
 			);
 			path = Model;
+			sourceTree = "<group>";
+		};
+		1A401559225EE3FF00C7833A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1A40155A225EE40000C7833A /* libsqlite3.tbd */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
