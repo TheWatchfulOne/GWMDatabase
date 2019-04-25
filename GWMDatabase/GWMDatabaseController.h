@@ -60,6 +60,29 @@ typedef void (^GWMDBErrorCompletionBlock)(NSError *_Nullable error);
 typedef void(^GWMDatabaseResultBlock)(GWMDataItem *_Nullable itm, NSError *_Nullable error);
 typedef void(^GWMBindValuesEnumerationBlock)(id value, NSUInteger idx, BOOL  *stop);
 
+#pragma mark Notification Names
+/*!
+ *@brief Posted when data is updated or deleted in a database.
+ *@discussion This notification has no userInfo dictionary.
+ */
+extern NSNotificationName const GWMDatabaseControllerDidUpdateDataNotification;
+/*!
+ *@brief Posted when user data will start to be migrated from one database to another.
+ *@discussion This notification has no userInfo dictionary.
+ */
+extern NSNotificationName const GWMDatabaseControllerDidBeginUserDataMigrationNotification;
+/*!
+ *@brief Posted when user data has finished migrating from one database to another.
+ *@discussion This notification has no userInfo dictionary.
+ */
+extern NSNotificationName const GWMDatabaseControllerDidFinishUserDataMigrationNotification;
+#pragma mark Notification UserInfo Keys
+/*!
+ *@brief Key to retrieve the executed SQLite statement from the userInfo dictionary.
+ *@discussion The value is a NSString.
+ */
+extern NSString * const GWMDBStatementKey;
+
 #pragma mark Date & Time Strings
 extern NSString * const GWMDBDateFormatShortDate;
 extern NSString * const GWMDBDateFormatDateTime;
@@ -94,13 +117,6 @@ extern NSString * const GWMPK_UserDatabaseAlias;
 extern NSString * const GWMPK_VersionOfMainDatabase;
 extern NSString * const GWMPK_VersionOfUserDatabase;
 extern NSString * const GWMPK_UserDatabaseSchemaVersion;
-
-#pragma mark Notification Keys
-extern NSString * const GWMDBStatementKey;
-extern NSString * const GWMDatabaseControllerDidReadDataNotification;
-extern NSString * const GWMDatabaseControllerDidUpdateDataNotification;
-extern NSString * const GWMDatabaseControllerDidBeginUserDataMigrationNotification;
-extern NSString * const GWMDatabaseControllerDidFinishUserDataMigrationNotification;
 
 /*!
  * @class GWMDatabaseController
