@@ -102,7 +102,7 @@ extern NSString * const GWMSQLiteErrorSteppingToRow;
 extern NSString * const GWMSQLiteErrorFinalizingStatement;
 
 #pragma mark Error Domain
-extern NSString * const GWMErrorDomainDatabase;
+extern NSErrorDomain const GWMErrorDomainDatabase;
 
 #pragma mark Exceptions
 extern NSString * const GWMPreparingStatementException;

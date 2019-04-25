@@ -78,7 +78,7 @@ NSString * const GWMSQLiteErrorSteppingToRow = @"Error stepping to row";
 NSString * const GWMSQLiteErrorFinalizingStatement = @"Error finalizing statement";
 
 #pragma mark Error Domain
-NSString * const GWMErrorDomainDatabase = @"GWMErrorDomainDatabase";
+NSErrorDomain const GWMErrorDomainDatabase = @"GWMDatabase";
 
 #pragma mark Exceptions
 NSString * const GWMPreparingStatementException = @"GWMPreparingStatementException";
