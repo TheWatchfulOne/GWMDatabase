@@ -84,9 +84,25 @@ extern NSNotificationName const GWMDatabaseControllerDidFinishUserDataMigrationN
 extern NSString * const GWMDBStatementKey;
 
 #pragma mark Date & Time Strings
-extern NSString * const GWMDBDateFormatShortDate;
+/*!
+ *@brief Short date format.
+ *@discussion The format is 'yyyy-MM-dd HH:mm:ss'.
+ */
 extern NSString * const GWMDBDateFormatDateTime;
+/*!
+ *@brief Short date format.
+ *@discussion The format is 'yyyy-MM-dd'.
+ */
+extern NSString * const GWMDBDateFormatShortDate;
+/*!
+ *@brief Short date format.
+ *@discussion The format is 'yyyy-MM'.
+ */
 extern NSString * const GWMDBDateFormatYearAndMonth;
+/*!
+ *@brief Short date format.
+ *@discussion The format is 'yyyy'.
+ */
 extern NSString * const GWMDBDateFormatYear;
 
 #pragma mark SQLite Error Strings
@@ -102,6 +118,9 @@ extern NSString * const GWMSQLiteErrorSteppingToRow;
 extern NSString * const GWMSQLiteErrorFinalizingStatement;
 
 #pragma mark Error Domain
+/*!
+ *@brief The error domain for GWMDatabase.
+ */
 extern NSErrorDomain const GWMErrorDomainDatabase;
 
 #pragma mark Exceptions
