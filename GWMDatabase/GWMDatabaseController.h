@@ -327,7 +327,7 @@ extern NSString * const GWMPK_UserDatabaseSchemaVersion;
  */
 -(void)insertIntoTable:(NSString *)table values:(NSDictionary<NSString*,id> *)values completion:(GWMDatabaseResultBlock _Nullable)completionHandler;
 /*!
- * @discussion Insert records into a SQLite database table with new values for columns that you specify.
+ * @discussion Insert a single record into a SQLite database table with new values for columns that you specify.
  * @param table The name of the table to insert into. This parameter cannot be nil.
  * @param values An NSDictionary of values to insert where the key is the table column and the value is the value to insert. SQLite's binding functions are used to bind the values to the statement.
  * @param onConflict The SQLite conflict resolution algorithm to use. GWMDBOnConflictAbort is the default.

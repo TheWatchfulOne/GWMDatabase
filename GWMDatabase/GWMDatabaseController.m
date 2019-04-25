@@ -1162,6 +1162,7 @@ NSString * const GWMPK_UserDatabaseSchemaVersion = @"GWMPK_UserDatabaseSchemaVer
         NSError *error = [NSError errorWithDomain:GWMErrorDomainDatabase code:1 userInfo:errorInfo];
         if (completionHandler)
             completionHandler(nil,error);
+        return;
     }
     // execute statement
     
@@ -1241,6 +1242,7 @@ NSString * const GWMPK_UserDatabaseSchemaVersion = @"GWMPK_UserDatabaseSchemaVer
         NSError *error = [NSError errorWithDomain:GWMErrorDomainDatabase code:1 userInfo:errorInfo];
         if (completionHandler)
             completionHandler(nil,error);
+        return;
     }
     // execute statement
     
