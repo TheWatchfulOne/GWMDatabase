@@ -10,15 +10,19 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-extern NSString * const GWMTableColumnDataItemKey;
-extern NSString * const GWMTableColumnRelatedDataItemKey;
-extern NSString * const GWMTableColumnRelationshipKey;
+extern GWMColumnName const GWMTableColumnDataItemKey;
+extern GWMColumnName const GWMTableColumnRelatedDataItemKey;
+extern GWMColumnName const GWMTableColumnRelationshipKey;
 
 @interface GWMRelationshipItem : GWMDataItem
 
 @property (nonatomic, assign) NSInteger dataItemID;
 @property (nonatomic, assign) NSInteger relatedDataItemID;
 @property (nonatomic, assign) NSInteger relationshipID;
+
++(instancetype)relationshipItemWithDataID:(NSInteger)dataItemID relatedID:(NSInteger)relatedID;
+
+-(instancetype)initWithDataID:(NSInteger)dataID relatedID:(NSInteger)relatedID;
 
 @end
 

@@ -10,18 +10,55 @@
 #import "GWMDatabaseResult.h"
 #import "GWMDatabaseController.h"
 
-NSString * const GWMTableColumnDataItemKey = @"itemKey";
-NSString * const GWMTableColumnRelatedDataItemKey = @"relatedItemKey";
-NSString * const GWMTableColumnRelationshipKey = @"relationshipKey";
+GWMColumnName const GWMTableColumnDataItemKey = @"itemKey";
+GWMColumnName const GWMTableColumnRelatedDataItemKey = @"relatedItemKey";
+GWMColumnName const GWMTableColumnRelationshipKey = @"relationshipKey";
 
 @implementation GWMRelationshipItem
+
+#pragma mark - Construction
+
++(instancetype)relationshipItemWithDataID:(NSInteger)dataID relatedID:(NSInteger)relatedID
+{
+    return [[self alloc] initWithDataID:dataID relatedID:relatedID];
+}
+
+-(instancetype)initWithDataID:(NSInteger)dataID relatedID:(NSInteger)relatedID
+{
+    if (self = [super init]) {
+        @try {
+            NSString *table = self.databaseController.classToTableMapping[NSStringFromClass([self class])];
+            if (!table) {
+                //                NSError *error = [NSError errorWithDomain:GWMErrorDomainDataModel code:0 userInfo:@{}];
+                //                if(completion)
+                //                    completion(kGWMNewRecordValue, error);
+                //                return;
+            }
+            NSDictionary *overrideInfo = [[self class] columnOverrideInfo];
+            NSArray *criteria = @[@{overrideInfo[GWMTableColumnDataItemKey]:@(dataID),
+                                    overrideInfo[GWMTableColumnRelatedDataItemKey]:@(relatedID)
+                                    }];
+            NSString *columns = [[[self class] tableColumns] componentsJoinedByString:@", "];
+            NSString *tableString = [NSString stringWithFormat:@"%@ %@",table,[[self class] tableAlias]];
+            NSString *statement = [NSString stringWithFormat:@"SELECT %@ FROM %@", columns,tableString];
+            GWMDatabaseResult *result = [self.databaseController resultWithStatement:statement criteria:criteria exclude:nil sortBy:nil ascending:YES limit:0 completion:nil];
+            
+            if (result.data.count > 0) {
+                self = result.data.firstObject;
+            }
+        } @catch(NSException *exception) {
+            NSLog(@"%@", exception);
+        }
+    }
+    return self;
+}
 
 +(NSString*)tableAlias
 {
     return @"LK";
 }
 
-+(NSDictionary<NSString*,NSString*>*)columnOverrideInfo
++(NSDictionary<GWMColumnName,GWMColumnName>*)columnOverrideInfo
 {
     NSMutableDictionary *mutableInfo = [NSMutableDictionary dictionaryWithDictionary:[super columnOverrideInfo]];
     [mutableInfo addEntriesFromDictionary:@{GWMTableColumnDataItemKey:GWMTableColumnDataItemKey,
@@ -32,7 +69,7 @@ NSString * const GWMTableColumnRelationshipKey = @"relationshipKey";
 
 #pragma mark Table Column Info
 
-+(NSArray<NSString*>*)excludedColumns
++(NSArray<GWMColumnName>*)excludedColumns
 {
     return @[GWMTableColumnName,
              GWMTableColumnDescription];
@@ -73,7 +110,7 @@ NSString * const GWMTableColumnRelationshipKey = @"relationshipKey";
     return [NSArray arrayWithArray:mutableDefinitions];
 }
 
-+(NSDictionary<NSString*,NSString*> *)tableColumnInfo
++(NSDictionary<GWMColumnName,NSString*> *)tableColumnInfo
 {
     NSMutableDictionary *mutableInfo = [NSMutableDictionary dictionaryWithDictionary:[super tableColumnInfo]];
     
@@ -162,14 +199,13 @@ NSString * const GWMTableColumnRelationshipKey = @"relationshipKey";
                     completion(kGWMNewRecordValue, error);
                 return;
             }
-            NSDictionary *criteria = @{GWMTableColumnDataItemKey:@(self.dataItemID),
-                                       GWMTableColumnRelatedDataItemKey:@(self.relatedDataItemID)};
+            NSDictionary *overrideInfo = [[self class] columnOverrideInfo];
+            NSDictionary *criteria = @{overrideInfo[GWMTableColumnDataItemKey]:@(self.dataItemID),
+                                       overrideInfo[GWMTableColumnRelatedDataItemKey]:@(self.relatedDataItemID)};
             NSString *columns = [[[self class] tableColumns] componentsJoinedByString:@", "];
-            NSString *statement = [NSString stringWithFormat:@"SELECT %@ FROM %@", columns,table];
+            NSString *tableString = [NSString stringWithFormat:@"%@ %@",table,[[self class] tableAlias]];
+            NSString *statement = [NSString stringWithFormat:@"SELECT %@ FROM %@", columns,tableString];
             GWMDatabaseResult *result = [self.databaseController resultWithStatement:statement criteria:@[criteria] exclude:nil sortBy:nil ascending:YES limit:0 completion:nil];
-//            [self.databaseController deleteFromTable:table criteria:@[criteria] completion:^{
-//                NSLog(@"*** Record was deleted?" ***);
-//            }];
             
             if (result.data.count > 0){
                 @try {

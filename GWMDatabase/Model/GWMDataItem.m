@@ -373,15 +373,15 @@ NSErrorDomain const GWMErrorDomainDataModel = @"GWMErrorDomainDataModel";
     return nil;
 }
 
-+(NSDictionary<NSString*,NSString*> *)tableColumnInfo
++(NSDictionary<GWMColumnName,NSString*> *)tableColumnInfo
 {
-    return @{[NSString stringWithFormat:@"'%@'", NSStringFromClass([self class])]:GWMTableColumnClass,
-             GWMTableColumnPkey:NSStringFromSelector(@selector(itemID)),
-             GWMTableColumnName:NSStringFromSelector(@selector(name)),
-             GWMTableColumnDescription:NSStringFromSelector(@selector(description)),
-             GWMTableColumnInserted:NSStringFromSelector(@selector(inserted)),
-             GWMTableColumnUpdated:NSStringFromSelector(@selector(updated))
-    };
+    NSMutableDictionary<GWMColumnName,NSString*> *mutableColumnInfo = [NSMutableDictionary new];
+    
+    [[self columnDefinitionItems] enumerateObjectsUsingBlock:^(GWMColumnDefinition *col, NSUInteger idx, BOOL *stop){
+        mutableColumnInfo[col.name] = col.property;
+    }];
+    
+    return [NSDictionary dictionaryWithDictionary:mutableColumnInfo];
 }
 
 +(NSArray<NSString*> *)tableColumns
