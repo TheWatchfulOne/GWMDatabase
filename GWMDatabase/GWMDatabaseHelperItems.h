@@ -8,6 +8,9 @@
 
 @import Foundation;
 
+typedef NSString *GWMColumnName;
+typedef NSString *GWMColumnAffinity;
+
 typedef NS_OPTIONS(NSInteger, GWMColumnOption) {
     GWMColumnOptionNone = 0,
     GWMColumnOptionNotNull = 1 << 0,
@@ -62,10 +65,10 @@ NS_ASSUME_NONNULL_BEGIN
 @interface GWMColumnDefinition : NSObject
 
 @property (nonatomic, readonly) NSString *className;
-///@discussion An NSString representation of a column name in a SQLite table.
-@property (nonatomic, readonly) NSString *name;
-///@discussion An NSString representation of the affinity of a column in a SQLite table. Natively, SQLite supports datatypes of Integer, Text, Real, Blob, and Null. GWMDatabase adds affinity for Boolean and Date/Time. Constants are provided for all affinities. This property can be nil.
-@property (nonatomic, readonly) NSString *_Nullable affinity;
+///@discussion A GWMColumnName representation of a column name in a SQLite table.
+@property (nonatomic, readonly) GWMColumnName name;
+///@discussion A GWMColumnAffinity representation of the affinity of a column in a SQLite table. Natively, SQLite supports datatypes of Integer, Text, Real, Blob, and Null. GWMDatabase adds affinity for Boolean and Date/Time. Constants are provided for all affinities. This property can be nil.
+@property (nonatomic, readonly) GWMColumnAffinity _Nullable affinity;
 ///@discussion An NSString representation of the default value of the column in the SQLite database. Can be nil.
 @property (nonatomic, readonly) NSString *_Nullable defaultValue;
 ///@discussion An NSString representation of the object property the column maps to.
@@ -81,9 +84,9 @@ NS_ASSUME_NONNULL_BEGIN
 ///@discussion An NSString substring that will be used to build a SQLite SELECT statement.
 @property (nonatomic, readonly) NSString *selectString;
 
-+(instancetype)columnDefinitionWithName:(NSString*)name affinity:(NSString *_Nullable)affinity defaultValue:(NSString *_Nullable)defaultValue property:(NSString *)property include:(GWMColumnInclusion)include options:(GWMColumnOption)options className:(NSString *_Nullable)className sequence:(NSInteger)sequence;
++(instancetype)columnDefinitionWithName:(GWMColumnName)name affinity:(GWMColumnAffinity _Nullable)affinity defaultValue:(NSString *_Nullable)defaultValue property:(NSString *)property include:(GWMColumnInclusion)include options:(GWMColumnOption)options className:(NSString *_Nullable)className sequence:(NSInteger)sequence;
 
--(instancetype)initWithName:(NSString*)name affinity:(NSString *_Nullable)affinity defaultValue:(NSString *_Nullable)defaultValue property:(NSString *)property include:(GWMColumnInclusion)include options:(GWMColumnOption)options className:(NSString *_Nullable)className sequence:(NSInteger)sequence;
+-(instancetype)initWithName:(GWMColumnName)name affinity:(GWMColumnAffinity _Nullable)affinity defaultValue:(NSString *_Nullable)defaultValue property:(NSString *)property include:(GWMColumnInclusion)include options:(GWMColumnOption)options className:(NSString *_Nullable)className sequence:(NSInteger)sequence;
 
 @end
 
@@ -98,12 +101,12 @@ NS_ASSUME_NONNULL_BEGIN
 ///@discussion The style of the constraint. Choices are PRIMARY KEY, UNIQUE, CHECK, or FOREIGN KEY.
 @property (nonatomic, readonly) GWMConstraintStyle style;
 ///@discussion An NSArray of NSStrings that represent the names of columns to be involved in the constraint.
-@property (nonatomic, readonly) NSArray<NSString*> *columns;
+@property (nonatomic, readonly) NSArray<GWMColumnName> *columns;
 ///@discussion An NSString substring that will be used to build a SQLite SELECT statement.
 @property (nonatomic, readonly) NSString *body;
 
-+(instancetype)tableConstraintWithName:(NSString*)name style:(GWMConstraintStyle)style columns:(NSArray<NSString*>*_Nullable)columns body:(NSString*)body;
--(instancetype)initWithName:(NSString*)name style:(GWMConstraintStyle)style columns:(NSArray<NSString*>*_Nullable)columns body:(NSString*)body;
++(instancetype)tableConstraintWithName:(NSString*)name style:(GWMConstraintStyle)style columns:(NSArray<GWMColumnName>*_Nullable)columns body:(NSString*)body;
+-(instancetype)initWithName:(NSString*)name style:(GWMConstraintStyle)style columns:(NSArray<GWMColumnName>*_Nullable)columns body:(NSString*)body;
 
 @end
 
@@ -121,7 +124,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) NSString *_Nullable schema;
 
 ///@discussion An NSArray of GWMColumnDefinition items that represent the table's columns.
-@property (nonatomic, readonly) NSArray<GWMColumnDefinition*> *columns;
+@property (nonatomic, readonly) NSArray<GWMColumnDefinition*> *columnDefinitions;
 ///@discussion An NSArray of GWMTableConstraintDefinition items that represent the table's constraints.
 @property (nonatomic, readonly) NSArray<GWMTableConstraintDefinition*> *_Nullable constraints;
 
@@ -149,8 +152,8 @@ NS_ASSUME_NONNULL_BEGIN
 ///@discussion An NSString representation of the name of the WHEN expression.
 @property (nonatomic, readonly) NSString *_Nullable whenExpression;
 ///@discussion An NSArray of columns that will be monitored for the invoking of the trigger.
-@property (nonatomic, readonly) NSArray<NSString*> *columns;
-///@discussion An NSString representation of the name of the body of the trigger.
+@property (nonatomic, readonly) NSArray<GWMColumnName> *columns;
+///@discussion An NSString representation of the body of the trigger.
 @property (nonatomic, readonly) NSString *body;
 
 ///@discussion An NSString representation of a CREATE TRIGGER statement that will create a trigger based on all the property values.

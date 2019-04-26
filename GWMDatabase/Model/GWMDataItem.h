@@ -12,9 +12,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @import CoreSpotlight;
 
-typedef NSString *GWMColumnName;
-typedef NSString *GWMColumnAffinity;
-
 typedef NS_ENUM(NSInteger, GWMReadWriteDestination) {
     GWMReadWriteLocal = 0,
     GWMReadWriteCloud
@@ -92,7 +89,7 @@ typedef void (^GWMSaveDataItemCompletionBlock)(NSInteger itemID, NSError *_Nulla
  * @discussion Subclasses of GWMDataItem will inherit all the properties defined by GWMDataItem: itemID, name, abstract, inserted, updated. Subclasses that want to exclude any of these properties should override this method and return the properties that should be excluded. This does not stop subclasses from inheriting these properties, but it will cause the coresponding table columns from being included in any automatically created SQLite tables.
  * @return A NSArray of NSString objects.
  */
-+(NSArray<GWMColumnName>*_Nullable)excludedColumns;
++(NSArray<NSString*>*_Nullable)excludedColumns;
 /*!
  * @brief Replace table column names with more desirable table column names.
  * @discussion The default implementation of this method maps the old table column names to themselves. Subclasses that want to change any table column names should create a NSMutableDictionary from the result of calling super. Then replace the old column name with the new column name using the old column name as the key.

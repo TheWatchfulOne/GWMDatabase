@@ -27,12 +27,12 @@
     return [GWMDatabaseController sharedController];
 }
 
-+(instancetype)columnDefinitionWithName:(NSString *)name affinity:(NSString *)affinity defaultValue:(NSString *)defaultValue property:(NSString *)property include:(GWMColumnInclusion)include options:(GWMColumnOption)options className:(NSString * _Nullable)className sequence:(NSInteger)sequence
++(instancetype)columnDefinitionWithName:(GWMColumnName)name affinity:(GWMColumnAffinity)affinity defaultValue:(NSString *)defaultValue property:(NSString *)property include:(GWMColumnInclusion)include options:(GWMColumnOption)options className:(NSString * _Nullable)className sequence:(NSInteger)sequence
 {
     return [[self alloc] initWithName:name affinity:affinity defaultValue:defaultValue property:property include:include options:options className:className sequence:sequence];
 }
 
--(instancetype)initWithName:(NSString *)name affinity:(NSString *)affinity defaultValue:(NSString *_Nullable)defaultValue property:(NSString *)property include:(GWMColumnInclusion)include options:(GWMColumnOption)options className:(NSString * _Nullable)className sequence:(NSInteger)sequence
+-(instancetype)initWithName:(GWMColumnName)name affinity:(GWMColumnAffinity)affinity defaultValue:(NSString *_Nullable)defaultValue property:(NSString *)property include:(GWMColumnInclusion)include options:(GWMColumnOption)options className:(NSString * _Nullable)className sequence:(NSInteger)sequence
 {
     if (self = [super init]) {
         _name = name;
@@ -88,12 +88,12 @@
 
 @implementation GWMTableConstraintDefinition
 
-+(instancetype)tableConstraintWithName:(NSString *)name style:(GWMConstraintStyle)style columns:(NSArray<NSString *> *)columns body:(NSString *)body
++(instancetype)tableConstraintWithName:(NSString *)name style:(GWMConstraintStyle)style columns:(NSArray<GWMColumnName> *)columns body:(NSString *)body
 {
     return [[self alloc] initWithName:name style:style columns:columns body:body];
 }
 
--(instancetype)initWithName:(NSString *)name style:(GWMConstraintStyle)style columns:(NSArray<NSString *> *)columns body:(NSString *)body
+-(instancetype)initWithName:(NSString *)name style:(GWMConstraintStyle)style columns:(NSArray<GWMColumnName> *)columns body:(NSString *)body
 {
     if (self = [super init]) {
         _name = name;
@@ -127,12 +127,12 @@
 
 @implementation GWMTriggerDefinition
 
-+(instancetype)triggerDefinitionWithName:(NSString *)name schema:(NSString * _Nullable)schema table:(nonnull NSString *)table timing:(GWMTriggerTiming)timing style:(GWMTriggerStyle)style when:(NSString * _Nullable)when columns:(nonnull NSArray<NSString *> *)columns body:(nonnull NSString *)body
++(instancetype)triggerDefinitionWithName:(NSString *)name schema:(NSString * _Nullable)schema table:(nonnull NSString *)table timing:(GWMTriggerTiming)timing style:(GWMTriggerStyle)style when:(NSString * _Nullable)when columns:(nonnull NSArray<GWMColumnName> *)columns body:(nonnull NSString *)body
 {
     return [[self alloc] initWithName:name schema:schema table:table timing:timing style:style when:when columns:columns body:body];
 }
 
--(instancetype)initWithName:(NSString *)name schema:(NSString * _Nullable)schema table:(nonnull NSString *)table timing:(GWMTriggerTiming)timing style:(GWMTriggerStyle)style when:(NSString * _Nullable)when columns:(nonnull NSArray<NSString *> *)columns body:(nonnull NSString *)body
+-(instancetype)initWithName:(NSString *)name schema:(NSString * _Nullable)schema table:(nonnull NSString *)table timing:(GWMTriggerTiming)timing style:(GWMTriggerStyle)style when:(NSString * _Nullable)when columns:(nonnull NSArray<GWMColumnName> *)columns body:(nonnull NSString *)body
 {
     if (self = [super init]) {
         _name = name;
