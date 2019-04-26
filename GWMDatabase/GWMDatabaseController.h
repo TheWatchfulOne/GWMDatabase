@@ -338,7 +338,7 @@ extern NSString * const GWMPK_UserDatabaseSchemaVersion;
 #pragma mark Read
 /*!
  * @discussion You use the returned GWMDatabaseResult object's data property to access an NSArray of data rows.
- * @param statement A SQLite statement string. The statement may or may not contain a WHERE clause. Using ? placeholders in the statement and passing in the actual match values in the criteria array will cause the database to SQLite's binding functions. This parameter cannot be nil.
+ * @param statement A SQLite statement string. The statement may or may not contain a WHERE clause. Using ? placeholders in the statement and passing in the actual match values in the criteria array will cause the database to use SQLite's binding functions. This parameter cannot be nil.
  * @param criteria An NSArray containing the desired criteria values. It is up to the developer to make sure the number of values in the array matches the number of ? placeholders contained in the statement. This parameter can be nil.
  * @param completionHandler A block that will run after the query is finished. This parameter can be nil.
  * @return A GWMDatabaseResult object.

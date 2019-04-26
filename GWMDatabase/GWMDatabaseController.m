@@ -119,14 +119,14 @@ NSString * const GWMPK_UserDatabaseSchemaVersion = @"GWMPK_UserDatabaseSchemaVer
 
 +(instancetype)sharedController
 {
-    static GWMDatabaseController *_sharedDatabaseController = nil;
+    static GWMDatabaseController *_databaseController = nil;
     static dispatch_once_t predicate;
     
     dispatch_once(&predicate, ^{
-        _sharedDatabaseController = [[self alloc] init];
+        _databaseController = [[self alloc] init];
     });
     
-    return _sharedDatabaseController;
+    return _databaseController;
 }
 
 -(NSDateFormatter *)dateFormatter
@@ -135,6 +135,13 @@ NSString * const GWMPK_UserDatabaseSchemaVersion = @"GWMPK_UserDatabaseSchemaVer
         _dateFormatter = [NSDateFormatter new];
     }
     return _dateFormatter;
+}
+
+-(NSNotificationCenter *)notificationCenter
+{
+    if (!_notificationCenter)
+        _notificationCenter = [NSNotificationCenter defaultCenter];
+    return _notificationCenter;
 }
 
 #pragma mark - SQLite Version
@@ -1094,7 +1101,7 @@ NSString * const GWMPK_UserDatabaseSchemaVersion = @"GWMPK_UserDatabaseSchemaVer
 
 #pragma mark Create
 
--(void)insertIntoTable:(NSString *)table newValues:(NSArray<NSDictionary<NSString *,id> *> *)valuesToInsert completion:(GWMDatabaseResultBlock)completionHandler
+-(void)insertIntoTable:(NSString *)table newValues:(nonnull NSArray<NSDictionary<GWMColumnName,id> *> *)valuesToInsert completion:(GWMDatabaseResultBlock _Nullable)completionHandler
 {
     // build statement
     
@@ -1175,12 +1182,12 @@ NSString * const GWMPK_UserDatabaseSchemaVersion = @"GWMPK_UserDatabaseSchemaVer
     }
 }
 
--(void)insertIntoTable:(NSString *)table values:(NSDictionary *)values completion:(GWMDatabaseResultBlock)completionHandler
+-(void)insertIntoTable:(NSString *)table values:(nonnull NSDictionary<GWMColumnName,id> *)values completion:(GWMDatabaseResultBlock _Nullable)completionHandler
 {
     [self insertIntoTable:table values:values onConflict:GWMDBOnConflictAbort completion:completionHandler];
 }
 
--(void)insertIntoTable:(NSString *)table values:(NSDictionary<NSString *,id> *)values onConflict:(GWMDBOnConflict)onConflict completion:(GWMDatabaseResultBlock _Nullable)completionHandler
+-(void)insertIntoTable:(NSString *)table values:(nonnull NSDictionary<GWMColumnName,id> *)values onConflict:(GWMDBOnConflict)onConflict completion:(GWMDatabaseResultBlock _Nullable)completionHandler
 {
     // conflict resolution
     NSString *conflict = [self stringWithConflict:onConflict];
@@ -1255,7 +1262,7 @@ NSString * const GWMPK_UserDatabaseSchemaVersion = @"GWMPK_UserDatabaseSchemaVer
     }
 }
 
--(void)insertWithStatement:(NSString *)statement values:(NSArray *)values completion:(GWMDBCompletionBlock)completion
+-(void)insertWithStatement:(NSString *)statement values:(nonnull NSArray *)values completion:(GWMDBCompletionBlock _Nullable)completion
 {
     GWMDatabaseResult *databaseResult = [[GWMDatabaseResult alloc] init];
     
@@ -1609,7 +1616,7 @@ NSString * const GWMPK_UserDatabaseSchemaVersion = @"GWMPK_UserDatabaseSchemaVer
     return databaseResult;
 }
 
--(GWMDatabaseResult *)resultWithStatement:(NSString *)statement criteria:(NSArray<NSDictionary<NSString *,id> *> *)criteriaValues exclude:(NSArray<__kindof GWMDataItem *> *)excludedObjects sortBy:(NSString * _Nullable)sortBy ascending:(BOOL)ascending limit:(NSInteger)limit completion:(GWMDBCompletionBlock _Nullable)completionHandler
+-(GWMDatabaseResult *)resultWithStatement:(NSString *)statement criteria:(NSArray<NSDictionary<GWMColumnName,id> *> *)criteriaValues exclude:(NSArray<__kindof GWMDataItem *> *)excludedItems sortBy:(GWMColumnName)sortBy ascending:(BOOL)ascending limit:(NSInteger)limit completion:(GWMDBCompletionBlock)completionHandler
 {
     // build statement
     
@@ -1652,9 +1659,9 @@ NSString * const GWMPK_UserDatabaseSchemaVersion = @"GWMPK_UserDatabaseSchemaVer
         [mutableStatement appendString:whereClause];
     }
     
-    if (excludedObjects) {
+    if (excludedItems) {
         NSMutableArray *mutableIDs = [NSMutableArray new];
-        [excludedObjects enumerateObjectsUsingBlock:^(GWMDataItem *_Nonnull obj, NSUInteger idx, BOOL *stop){
+        [excludedItems enumerateObjectsUsingBlock:^(GWMDataItem *_Nonnull obj, NSUInteger idx, BOOL *stop){
             [mutableIDs addObject:@(obj.itemID)];
         }];
         
@@ -1968,13 +1975,13 @@ NSString * const GWMPK_UserDatabaseSchemaVersion = @"GWMPK_UserDatabaseSchemaVer
 
 #pragma mark Update
 
--(GWMDatabaseResult *)updateTable:(NSString *)tableName withValues:(NSDictionary<NSString *,NSObject *> *)newValues criteria:(NSDictionary<NSString *,NSObject *> *)criteria completion:(GWMDatabaseResultBlock)completionHandler
+-(GWMDatabaseResult *)updateTable:(NSString *)tableName withValues:(nonnull NSDictionary<GWMColumnName,NSObject *> *)newValues criteria:(NSDictionary<GWMColumnName,NSObject *> * _Nullable)criteria completion:(GWMDatabaseResultBlock _Nullable)completionHandler
 {
     return [self updateTable:tableName withValues:newValues criteria:criteria onConflict:GWMDBOnConflictAbort completion:completionHandler];
 
 }
 
--(GWMDatabaseResult *)updateTable:(NSString *)tableName withValues:(NSDictionary<NSString *,NSObject *> *)newValues criteria:(NSDictionary<NSString *,NSObject *> *)criteria onConflict:(GWMDBOnConflict)onConflict completion:(GWMDatabaseResultBlock)completionHandler
+-(GWMDatabaseResult *)updateTable:(NSString *)tableName withValues:(nonnull NSDictionary<GWMColumnName,NSObject *> *)newValues criteria:(NSDictionary<GWMColumnName,NSObject *> * _Nullable)criteria onConflict:(GWMDBOnConflict)onConflict completion:(GWMDatabaseResultBlock _Nullable)completionHandler
 {
     // conflict resolution
     NSString *conflict = [self stringWithConflict:onConflict];
@@ -2091,7 +2098,7 @@ NSString * const GWMPK_UserDatabaseSchemaVersion = @"GWMPK_UserDatabaseSchemaVer
 
 #pragma mark Delete
 
--(void)deleteFromTable:(NSString *)table criteria:(NSArray<NSDictionary<NSString *,NSObject *> *> *)criteria completion:(GWMDBErrorCompletionBlock)completionHandler
+-(void)deleteFromTable:(NSString *)table criteria:(NSArray<NSDictionary<GWMColumnName,NSObject *> *> *)criteria completion:(GWMDBErrorCompletionBlock)completionHandler
 {
     //TODO: Implement new delete method
     NSMutableString *mutableWhereClause = [[NSMutableString alloc] init];
@@ -2191,8 +2198,6 @@ NSString * const GWMPK_UserDatabaseSchemaVersion = @"GWMPK_UserDatabaseSchemaVer
     
 }
 
-#pragma mark - Transactions
-
 //int callback(void *arg, int argc, char **argv, char **colName) {
 //    int i;
 //    for(i=0; i<argc; i++){
@@ -2204,7 +2209,7 @@ NSString * const GWMPK_UserDatabaseSchemaVersion = @"GWMPK_UserDatabaseSchemaVer
 
 #pragma mark - Convenience
 
--(void)migrateDataFromTable:(NSString *)fromTable fromSchema:(NSString * _Nullable)fromSchema toTable:(NSString * _Nonnull)toTable toSchema:(NSString *_Nullable)toSchema columns:(nonnull NSDictionary<NSString *,NSString *> *)columnInfo completion:(GWMDBErrorCompletionBlock _Nullable)completionHandler
+-(void)migrateDataFromTable:(NSString *)fromTable fromSchema:(NSString *)fromSchema toTable:(NSString *)toTable toSchema:(NSString *)toSchema columns:(NSDictionary<GWMColumnName,GWMColumnName> *)columnInfo completion:(GWMDBErrorCompletionBlock)completionHandler
 {
     if (!fromTable) {
         NSString *message = [NSString stringWithFormat:@"%@", @"From table cannot be nil."];
@@ -2262,6 +2267,8 @@ NSString * const GWMPK_UserDatabaseSchemaVersion = @"GWMPK_UserDatabaseSchemaVer
         completionHandler(nil);
 }
 
+#pragma mark - Transactions
+
 -(BOOL)applyStatements:(NSArray<NSString *> *)statements identifier:(NSString *)identifier completion:(GWMDBCompletionBlock)completion
 {
     if(!statements)
@@ -2301,7 +2308,7 @@ NSString * const GWMPK_UserDatabaseSchemaVersion = @"GWMPK_UserDatabaseSchemaVer
     return YES;
 }
 
--(NSInteger)countOfRecordsFromTable:(NSString *)table column:(NSString *)column criteria:(NSArray<NSDictionary *> *)criteria
+-(NSInteger)countOfRecordsFromTable:(NSString *)table column:(nonnull GWMColumnName)column criteria:(NSArray<NSDictionary<GWMColumnName,id> *> * _Nullable)criteria
 {
     NSInteger qty = 0;
     

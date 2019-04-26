@@ -8,6 +8,8 @@
 
 @import Foundation;
 
+typedef NSString *GWMSchemaName;
+typedef NSString *GWMTableName;
 typedef NSString *GWMColumnName;
 typedef NSString *GWMColumnAffinity;
 
@@ -117,19 +119,19 @@ NS_ASSUME_NONNULL_BEGIN
 @interface GWMTableDefinition : NSObject
 
 ///@discussion An NSString representation of the name of the table to be created.
-@property (nonatomic, readonly) NSString *table;
+@property (nonatomic, readonly) GWMTableName table;
 ///@discussion An NSString representation of the alias to be used for the table.
 @property (nonatomic, readonly) NSString *alias;
 ///@discussion An NSString representation of the name of the database where the table will be created.
-@property (nonatomic, readonly) NSString *_Nullable schema;
+@property (nonatomic, readonly) GWMSchemaName _Nullable schema;
 
 ///@discussion An NSArray of GWMColumnDefinition items that represent the table's columns.
 @property (nonatomic, readonly) NSArray<GWMColumnDefinition*> *columnDefinitions;
 ///@discussion An NSArray of GWMTableConstraintDefinition items that represent the table's constraints.
 @property (nonatomic, readonly) NSArray<GWMTableConstraintDefinition*> *_Nullable constraints;
 
-+(instancetype)tableDefinitionWithTable:(NSString *)table alias:(NSString *)alias schema:(NSString*_Nullable)schema;
--(instancetype)initWithTable:(NSString *)table alias:(NSString *)alias schema:(NSString*_Nullable)schema;
++(instancetype)tableDefinitionWithTable:(GWMTableName)table alias:(NSString *)alias schema:(GWMSchemaName _Nullable)schema;
+-(instancetype)initWithTable:(GWMTableName)table alias:(NSString *)alias schema:(GWMSchemaName _Nullable)schema;
 
 @end
 
@@ -142,9 +144,9 @@ NS_ASSUME_NONNULL_BEGIN
 ///@discussion An NSString representation of the name of the trigger.
 @property (nonatomic, readonly) NSString *name;
 ///@discussion An NSString representation of the name of the database where the trigger will be created.
-@property (nonatomic, readonly) NSString *_Nullable schema;
+@property (nonatomic, readonly) GWMSchemaName _Nullable schema;
 ///@discussion An NSString representation of the name of the table the trigger wil be created for.
-@property (nonatomic, readonly) NSString *table;
+@property (nonatomic, readonly) GWMTableName table;
 ///@discussion An enum that determines when the trigger will be invoked in relation to data being inserted, updated, or deleted. Choices are BEFORE, AFTER, or INSTEAD OF.
 @property (nonatomic, readonly) GWMTriggerTiming timing;
 ///@discussion An enum that determines the type of change the trigger will be invoked by. Choices are INSERT, UPDATE, or DELETE.
@@ -159,9 +161,9 @@ NS_ASSUME_NONNULL_BEGIN
 ///@discussion An NSString representation of a CREATE TRIGGER statement that will create a trigger based on all the property values.
 @property (nonatomic, readonly) NSString *triggerString;
 
-+(instancetype)triggerDefinitionWithName:(NSString*)name schema:(NSString*_Nullable)schema table:(NSString*)table timing:(GWMTriggerTiming)timing style:(GWMTriggerStyle)style when:(NSString*_Nullable)when columns:(NSArray<NSString*>*)columns body:(NSString*)body;
++(instancetype)triggerDefinitionWithName:(NSString*)name schema:(GWMSchemaName _Nullable)schema table:(GWMTableName)table timing:(GWMTriggerTiming)timing style:(GWMTriggerStyle)style when:(NSString*_Nullable)when columns:(NSArray<NSString*>*)columns body:(NSString*)body;
 
--(instancetype)initWithName:(NSString*)name schema:(NSString*_Nullable)schema table:(NSString*)table timing:(GWMTriggerTiming)timing style:(GWMTriggerStyle)style when:(NSString*_Nullable)when columns:(NSArray<NSString*>*)columns body:(NSString*)body;
+-(instancetype)initWithName:(NSString*)name schema:(GWMSchemaName _Nullable)schema table:(GWMTableName)table timing:(GWMTriggerTiming)timing style:(GWMTriggerStyle)style when:(NSString*_Nullable)when columns:(NSArray<NSString*>*)columns body:(NSString*)body;
 
 @end
 

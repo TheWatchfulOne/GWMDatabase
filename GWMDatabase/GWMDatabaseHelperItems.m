@@ -108,12 +108,12 @@
 
 @implementation GWMTableDefinition
 
-+(instancetype)tableDefinitionWithTable:(NSString *)table alias:(NSString *)alias schema:(NSString * _Nullable)schema
++(instancetype)tableDefinitionWithTable:(GWMTableName)table alias:(NSString *)alias schema:(GWMSchemaName)schema
 {
     return [[self alloc] initWithTable:table alias:alias schema:schema];
 }
 
--(instancetype)initWithTable:(NSString *)table alias:(NSString *)alias schema:(NSString * _Nullable)schema
+-(instancetype)initWithTable:(GWMTableName)table alias:(NSString *)alias schema:(GWMSchemaName)schema
 {
     if (self = [super init]) {
         _table = table;
@@ -127,12 +127,12 @@
 
 @implementation GWMTriggerDefinition
 
-+(instancetype)triggerDefinitionWithName:(NSString *)name schema:(NSString * _Nullable)schema table:(nonnull NSString *)table timing:(GWMTriggerTiming)timing style:(GWMTriggerStyle)style when:(NSString * _Nullable)when columns:(nonnull NSArray<GWMColumnName> *)columns body:(nonnull NSString *)body
++(instancetype)triggerDefinitionWithName:(NSString *)name schema:(GWMSchemaName)schema table:(GWMTableName)table timing:(GWMTriggerTiming)timing style:(GWMTriggerStyle)style when:(NSString *)when columns:(NSArray<NSString *> *)columns body:(NSString *)body
 {
     return [[self alloc] initWithName:name schema:schema table:table timing:timing style:style when:when columns:columns body:body];
 }
 
--(instancetype)initWithName:(NSString *)name schema:(NSString * _Nullable)schema table:(nonnull NSString *)table timing:(GWMTriggerTiming)timing style:(GWMTriggerStyle)style when:(NSString * _Nullable)when columns:(nonnull NSArray<GWMColumnName> *)columns body:(nonnull NSString *)body
+-(instancetype)initWithName:(NSString *)name schema:(GWMSchemaName)schema table:(GWMTableName)table timing:(GWMTriggerTiming)timing style:(GWMTriggerStyle)style when:(NSString *)when columns:(NSArray<NSString *> *)columns body:(NSString *)body
 {
     if (self = [super init]) {
         _name = name;
