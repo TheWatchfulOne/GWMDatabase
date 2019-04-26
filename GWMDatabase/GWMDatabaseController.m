@@ -9,7 +9,6 @@
 #import "GWMDatabaseController.h"
 #import "GWMDatabaseResult.h"
 #import "GWMDataItem.h"
-#import "GWMDatabaseHelperItems.h"
 
 @import os.log;
 
@@ -81,9 +80,10 @@ NSString * const GWMSQLiteErrorFinalizingStatement = @"Error finalizing statemen
 NSErrorDomain const GWMErrorDomainDatabase = @"GWMDatabase";
 
 #pragma mark Exceptions
-NSString * const GWMPreparingStatementException = @"GWMPreparingStatementException";
-NSString * const GWMExecutingStatementException = @"GWMExecutingStatementException";
-NSString * const GWMFinalizingStatementException = @"GWMFinalizingStatementException";
+NSExceptionName const GWMPreparingStatementException = @"GWMPreparingStatementException";
+NSExceptionName const GWMBindingValueException = @"GWMBindingValueException";
+NSExceptionName const GWMExecutingStatementException = @"GWMExecutingStatementException";
+NSExceptionName const GWMFinalizingStatementException = @"GWMFinalizingStatementException";
 
 #pragma mark Preferences
 NSString * const GWMPK_MainDatabaseName = @"GWMPK_MainDatabaseName";
