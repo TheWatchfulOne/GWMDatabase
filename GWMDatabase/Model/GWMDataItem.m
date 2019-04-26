@@ -16,24 +16,24 @@ const NSInteger kGWMColumnSequenceItemId = -1;
 const NSInteger kGWMColumnSequenceInserted = 1001;
 const NSInteger kGWMColumnSequenceUpdated = 1002;
 
-NSString * const GWMColumnAffinityText = @"TEXT";
-NSString * const GWMColumnAffinityInteger = @"INTEGER";
-NSString * const GWMColumnAffinityBoolean = @"BOOLEAN";
-NSString * const GWMColumnAffinityReal = @"REAL";
-NSString * const GWMColumnAffinityBlob = @"BLOB";
-NSString * const GWMColumnAffinityNull = @"NULL";
-NSString * const GWMColumnAffinityDateTime = @"DATE_TIME";
-NSString * const GWMColumnAffinityHistoricDateTime = @"HISTORIC_DATE_TIME";
+GWMColumnAffinity const GWMColumnAffinityText = @"TEXT";
+GWMColumnAffinity const GWMColumnAffinityInteger = @"INTEGER";
+GWMColumnAffinity const GWMColumnAffinityBoolean = @"BOOLEAN";
+GWMColumnAffinity const GWMColumnAffinityReal = @"REAL";
+GWMColumnAffinity const GWMColumnAffinityBlob = @"BLOB";
+GWMColumnAffinity const GWMColumnAffinityNull = @"NULL";
+GWMColumnAffinity const GWMColumnAffinityDateTime = @"DATE_TIME";
+GWMColumnAffinity const GWMColumnAffinityHistoricDateTime = @"HISTORIC_DATE_TIME";
 
-NSString * const GWMTableColumnClass = @"class";
-NSString * const GWMTableColumnPkey = @"pKey";
-NSString * const GWMTableColumnName = @"name";
-NSString * const GWMTableColumnDescription = @"description";
-NSString * const GWMTableColumnInserted = @"inserted";
-NSString * const GWMTableColumnUpdated = @"updated";
+GWMColumnName const GWMTableColumnClass = @"class";
+GWMColumnName const GWMTableColumnPkey = @"pKey";
+GWMColumnName const GWMTableColumnName = @"name";
+GWMColumnName const GWMTableColumnDescription = @"description";
+GWMColumnName const GWMTableColumnInserted = @"inserted";
+GWMColumnName const GWMTableColumnUpdated = @"updated";
 
 #pragma mark Error Domain
-NSString * const GWMErrorDomainDataModel = @"GWMErrorDomainDataModel";
+NSErrorDomain const GWMErrorDomainDataModel = @"GWMErrorDomainDataModel";
 
 @implementation GWMDataItem
 
@@ -184,7 +184,20 @@ NSString * const GWMErrorDomainDataModel = @"GWMErrorDomainDataModel";
                 
             }];
             NSDictionary *values = [NSDictionary dictionaryWithDictionary:mutableValues];
-            NSDictionary *criteria = @{GWMTableColumnPkey:@(self.itemID)};
+            __block GWMColumnName primaryKeyColumn = nil;
+            [[[self class] columnDefinitionItems] enumerateObjectsUsingBlock:^(GWMColumnDefinition *col, NSUInteger idx, BOOL *stop){
+                if (col.options &GWMColumnOptionPrimaryKey) {
+                    primaryKeyColumn = col.name;
+                    *stop = YES;
+                }
+            }];
+            if (!primaryKeyColumn) {
+                NSError *error = [NSError errorWithDomain:GWMErrorDomainDataModel code:0 userInfo:@{}];
+                if(completion)
+                    completion(kGWMNewRecordValue,error);
+                return;
+            }
+            NSDictionary *criteria = @{primaryKeyColumn:@(self.itemID)};
             NSString *columns = [[[self class] tableColumns] componentsJoinedByString:@", "];
             NSString *tableAlias = [[self class] tableAlias];
             NSString *statement = [NSString stringWithFormat:@"SELECT %@ FROM %@ AS %@", columns,table, tableAlias];
@@ -233,9 +246,23 @@ NSString * const GWMErrorDomainDataModel = @"GWMErrorDomainDataModel";
                     completion(kGWMNewRecordValue,error);
                 return;
             }
-            NSDictionary *criteria = @{GWMTableColumnPkey:@(self.itemID)};
+            __block GWMColumnName primaryKeyColumn = nil;
+            [[[self class] columnDefinitionItems] enumerateObjectsUsingBlock:^(GWMColumnDefinition *col, NSUInteger idx, BOOL *stop){
+                if (col.options &GWMColumnOptionPrimaryKey) {
+                    primaryKeyColumn = col.name;
+                    *stop = YES;
+                }
+            }];
+            if (!primaryKeyColumn) {
+                NSError *error = [NSError errorWithDomain:GWMErrorDomainDataModel code:0 userInfo:@{}];
+                if(completion)
+                    completion(kGWMNewRecordValue,error);
+                return;
+            }
+            NSDictionary *criteria = @{primaryKeyColumn:@(self.itemID)};
             NSString *columns = [[[self class] tableColumns] componentsJoinedByString:@", "];
-            NSString *statement = [NSString stringWithFormat:@"SELECT %@ FROM %@", columns,table];
+            NSString *tableAlias = [[self class] tableAlias];
+            NSString *statement = [NSString stringWithFormat:@"SELECT %@ FROM %@ %@", columns,table, tableAlias];
             GWMDatabaseResult *result = [self.databaseController resultWithStatement:statement criteria:@[criteria] exclude:nil sortBy:nil ascending:YES limit:0 completion:nil];
             
             if (result.data.count > 0){
@@ -261,12 +288,12 @@ NSString * const GWMErrorDomainDataModel = @"GWMErrorDomainDataModel";
 
 #pragma mark Table Column Info
 
-+(NSArray<NSString*>*)excludedColumns
++(NSArray<GWMColumnName>*)excludedColumns
 {
     return nil;
 }
 
-+(NSDictionary<NSString*,NSString*>*)columnOverrideInfo
++(NSDictionary<GWMColumnName,GWMColumnName>*)columnOverrideInfo
 {
     return @{GWMTableColumnPkey:GWMTableColumnPkey,
              GWMTableColumnName:GWMTableColumnName,
