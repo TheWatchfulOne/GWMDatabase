@@ -38,24 +38,36 @@ typedef NS_ENUM(NSInteger, GWMDBOnConflict) {
     GWMDBOnConflictReplace
 };
 
+typedef NSString *GWMSQLiteErrorName;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /*!
- * @brief A block that runs on completion of some SQLite queries. Can be nil.
+ * @brief A block that runs on completion of some SQLite queries.
+ * @discussion This block takes no arguments and returns void.
  */
 typedef void (^GWMDBCompletionBlock)(void);
 /*!
- * @brief A block that runs on completion of some SQLite queries. Can be nil.
+ * @brief A block that runs on completion of some SQLite queries.
+ * @discussion This block takes one NSError argument and returns void.
  * @param error An NSError object that is generated if there was a problem.
  */
 typedef void (^GWMDBErrorCompletionBlock)(NSError *_Nullable error);
 /*!
- * @brief A block that runs on completion of some SQLite queries. Can be nil.
+ * @brief A block that runs on completion of some SQLite queries.
+ * @discussion This block takes two arguments, a GWMDataItem and a NSError, and returns void.
  * @param itm A GWMDataItem containing the itemID of the record that was just inserted or updated.
  * @param error An NSError object that is generated if there was a problem.
  */
-typedef void(^GWMDatabaseResultBlock)(GWMDataItem *_Nullable itm, NSError *_Nullable error);
-typedef void(^GWMBindValuesEnumerationBlock)(id value, NSUInteger idx, BOOL  *stop);
+typedef void (^GWMDatabaseResultBlock)(GWMDataItem *_Nullable itm, NSError *_Nullable error);
+/*!
+ * @brief Binds values in a SQLite statement.
+ * @discussion This block takes three arguments and returns void.
+ * @param value An id value.
+ * @param idx A NSUInteger.
+ * @param stop A BOOL value.
+ */
+typedef void (^GWMBindValuesEnumerationBlock)(id value, NSUInteger idx, BOOL  *stop);
 
 #pragma mark Notification Names
 /*!
@@ -102,17 +114,17 @@ extern NSString * const GWMDBDateFormatYearAndMonth;
  */
 extern NSString * const GWMDBDateFormatYear;
 
-#pragma mark SQLite Error Strings
-extern NSString * const GWMSQLiteErrorOpeningDatabase;
-extern NSString * const GWMSQLiteErrorClosingDatabase;
-extern NSString * const GWMSQLiteErrorPreparingStatement;
-extern NSString * const GWMSQLiteErrorExecutingStatement;
-extern NSString * const GWMSQLiteErrorBindingNullValue;
-extern NSString * const GWMSQLiteErrorBindingTextValue;
-extern NSString * const GWMSQLiteErrorBindingIntegerValue;
-extern NSString * const GWMSQLiteErrorBindingDoubleValue;
-extern NSString * const GWMSQLiteErrorSteppingToRow;
-extern NSString * const GWMSQLiteErrorFinalizingStatement;
+#pragma mark SQLite Error Names
+extern GWMSQLiteErrorName const GWMSQLiteErrorOpeningDatabase;
+extern GWMSQLiteErrorName const GWMSQLiteErrorClosingDatabase;
+extern GWMSQLiteErrorName const GWMSQLiteErrorPreparingStatement;
+extern GWMSQLiteErrorName const GWMSQLiteErrorExecutingStatement;
+extern GWMSQLiteErrorName const GWMSQLiteErrorBindingNullValue;
+extern GWMSQLiteErrorName const GWMSQLiteErrorBindingTextValue;
+extern GWMSQLiteErrorName const GWMSQLiteErrorBindingIntegerValue;
+extern GWMSQLiteErrorName const GWMSQLiteErrorBindingDoubleValue;
+extern GWMSQLiteErrorName const GWMSQLiteErrorSteppingToRow;
+extern GWMSQLiteErrorName const GWMSQLiteErrorFinalizingStatement;
 
 #pragma mark Error Domain
 /*!
@@ -141,7 +153,6 @@ extern NSString * const GWMPK_UserDatabaseSchemaVersion;
  */
 @interface GWMDatabaseController : NSObject
 {
-    NSArray<NSString*> *_attachedDatabases;
     NSDateFormatter *_dateFormatter;
     NSNotificationCenter *_notificationCenter;
 }
@@ -149,7 +160,7 @@ extern NSString * const GWMPK_UserDatabaseSchemaVersion;
 @property (nonatomic, strong) NSString *_Nullable mainDatabaseName;
 @property (nonatomic, strong) NSString *_Nullable mainDatabaseExtension;
 ///@discussion An NSDictionary where the key is an NSString representation of the class and the value is an NSString representation of the table.
-@property (nonatomic, strong) NSDictionary<NSString*,NSString*> *_Nonnull classToTableMapping;
+@property (nonatomic, strong) NSDictionary<NSString*,GWMTableName> *_Nonnull classToTableMapping;
 
 @property (nonatomic, strong) NSDictionary<NSString*,GWMTableDefinition*> *_Nonnull classToTableDefinitionMapping;
 
@@ -185,48 +196,51 @@ extern NSString * const GWMPK_UserDatabaseSchemaVersion;
  * @return The int value from the SQLite database using the schema pragma.
  */
 -(int)databaseVersionAtFilePath:(NSString *)filePath;
-
--(NSArray<GWMDataItem*> *_Nonnull)databases;
+/*!
+ * @brief Currently attached databases.
+ * @return A NSArray of GWMDatabaseItem objects.
+ */
+-(NSArray<GWMDatabaseItem*> *_Nonnull)databases;
 
 #pragma mark - Maintenance
-
 /*!
- * @discussion Runs the VACUUM command on the specified SQLite database.
+ * @brief Runs the VACUUM command on the specified SQLite database.
+ * @discussion Passing nil to the schema parameter will cause the 'main' database to be VACUUMed.
  * @param schema The database on which to run the VACUUM command. Can be nil.
  */
--(void)vacuum:(NSString *_Nullable)schema;
-
+-(void)vacuum:(GWMSchemaName _Nullable)schema;
 /*!
- * @discussion Check the integrity of a SQLite database by running PRAGMA schema.integrity_check or PRAGMA schema.integrity_check(N) where N is the maximum number of errors to return.
+ * @brief Check the integrity of a SQLite database.
+ * @discussion Runs PRAGMA schema.integrity_check or PRAGMA schema.integrity_check(N) where N is the maximum number of errors to return.
  * @param schema The database in which to run the integrity check.
- * @param rowCount The maximum number of errors to return. Entering a value of 0 or less will cause maximum number of rows to be 100 which is the defualt in SQLite.
+ * @param rowCount The maximum number of errors to return. Entering a value of 0 or less will cause the maximum number of rows to be 100 which is the defualt in SQLite.
  * @return An NSArray of NSString objects, each representing a found error. If no errors are found, a single string, "ok" is returned. This method does not find foreign key errors.
  */
--(NSArray<NSString*> *)checkIntegrity:(NSString *_Nullable)schema rows:(NSInteger)rowCount;
+-(NSArray<NSString*> *)checkIntegrity:(GWMSchemaName _Nullable)schema rows:(NSInteger)rowCount;
 /*!
  * @discussion Check the integrity of foreign keys in a SQLite database by running PRAGMA schema.foreign_key_check or PRAGMA schema.foreign_key_check(table-name) on the database.
  * @param schema The database in which to run the integrity check.
  * @param table The table for which to run the integrity check.
  * @return An NSArray of GWMForeignKeyIntegrityCheckItem objects.
  */
--(NSArray<GWMForeignKeyIntegrityCheckItem*> *)checkForeignKeysIntegrity:(NSString *_Nullable)schema table:(NSString *_Nullable)table;
+-(NSArray<GWMForeignKeyIntegrityCheckItem*> *)checkForeignKeysIntegrity:(GWMSchemaName _Nullable)schema table:(GWMTableName _Nullable)table;
 
 #pragma mark - Connection
 /*!
  * @brief ATTACH a SQLite database.
  * @discussion Uses an ATTACH statment to open an additional SQLite database.
- * @param databaseName The file name of the SQLite database to open.
- * @param alias The desired alias to be used to refer to the SQLite database.
+ * @param databaseFileName The file name of the SQLite database to open.
+ * @param schema The desired alias to be used to refer to the SQLite database.
  * @return A BOOL value indicating whether the statement execution was successful.
  */
--(BOOL)attachDatabase:(NSString *)databaseName alias:(NSString *)alias;
+-(BOOL)attachDatabase:(GWMDatabaseFileName)databaseFileName schemaName:(GWMSchemaName)schema;
 /*!
  * @brief DETACH a SQLite database.
  * @discussion Uses an DETACH statment to close the specified SQLite database.
- * @param databaseName The alias name of the SQLite database to close.
+ * @param schema The alias name of the SQLite database to close.
  * @return A BOOL value indicating whether the statement execution was successful.
  */
--(BOOL)detachDatabase:(NSString *)databaseName;
+-(BOOL)detachDatabase:(GWMSchemaName)schema;
 -(GWMDBOperationResult)openDatabase:(NSString *)name extension:(NSString *)extension;
 -(GWMDBOperationResult)closeDatabase;
 -(BOOL)isDatabaseOpen;
@@ -239,7 +253,7 @@ extern NSString * const GWMPK_UserDatabaseSchemaVersion;
  * @param schema The database in which to create the table.
  * @param completion A block that will run after the query has finished. This paramter can be nil.
  */
--(void)createTableWithClassName:(NSString *)className schema:(NSString *_Nullable)schema completion:(GWMDBCompletionBlock _Nullable)completion;
+-(void)createTableWithClassName:(NSString *)className schema:(GWMSchemaName _Nullable)schema completion:(GWMDBCompletionBlock _Nullable)completion;
 /*!
  * @brief Create a table in a SQLite database.
  * @param tableName A NSString representation of the desired name of the table to create.
@@ -248,21 +262,21 @@ extern NSString * const GWMPK_UserDatabaseSchemaVersion;
  * @param schema The database in which to create the table.
  * @param completion A block that will run after the query has finished. This paramter can be nil.
  */
--(void)createTable:(NSString *)tableName columns:(NSArray<GWMColumnDefinition*>*)columnDefinitions constraints:(NSDictionary<NSString*,NSString*>*)constraintDefinitions schema:(NSString *_Nullable)schema completion:(GWMDBCompletionBlock _Nullable)completion;
+-(void)createTable:(NSString *)tableName columns:(NSArray<GWMColumnDefinition*>*)columnDefinitions constraints:(NSDictionary<GWMConstraintName,NSString*>*)constraintDefinitions schema:(GWMSchemaName _Nullable)schema completion:(GWMDBCompletionBlock _Nullable)completion;
 /*!
  * @brief Drop a table from a SQLite database.
  * @param className A NSString representation of the class associated with the table to drop.
  * @param schema The database from which to create the table.
  * @param completion A block that will run after the query has finished. This paramter can be nil.
  */
--(void)dropTableWithClassName:(NSString *)className schema:(NSString *_Nullable)schema completion:(GWMDBCompletionBlock _Nullable)completion;
+-(void)dropTableWithClassName:(NSString *)className schema:(GWMSchemaName _Nullable)schema completion:(GWMDBCompletionBlock _Nullable)completion;
 /*!
  * @brief Drop a table from a SQLite database.
  * @param tableName A NSString representation of the class associated with the table to drop.
  * @param schema The database from which to create the table.
  * @param completion A block that will run after the query has finished. This paramter can be nil.
  */
--(void)dropTable:(NSString *)tableName schema:(NSString *_Nullable)schema completion:(GWMDBCompletionBlock _Nullable)completion;
+-(void)dropTable:(GWMTableName)tableName schema:(GWMSchemaName _Nullable)schema completion:(GWMDBCompletionBlock _Nullable)completion;
 /*!
  * @brief Rename a table in a SQLite database.
  * @param oldName The name of the table to alter.
@@ -270,7 +284,7 @@ extern NSString * const GWMPK_UserDatabaseSchemaVersion;
  * @param schema The database that contains the table to be renamed. Leaving this parameter nil will have the same result as inputing @"main".
  * @param completion A block that will run after the query has finished. This paramter can be nil.
  */
--(void)renameTable:(NSString *)oldName newName:(NSString *)newName schema:(NSString *_Nullable)schema completion:(GWMDBErrorCompletionBlock _Nullable)completion;
+-(void)renameTable:(GWMTableName)oldName newName:(GWMTableName)newName schema:(GWMSchemaName _Nullable)schema completion:(GWMDBErrorCompletionBlock _Nullable)completion;
 
 /*!
  * @discussion Rename a column in a given table in a SQLite database.
@@ -279,8 +293,7 @@ extern NSString * const GWMPK_UserDatabaseSchemaVersion;
  * @param schema The database that contains the table column to be renamed. Leaving this parameter nil will have the same result as inputing @"main".
  * @param completion A block that will run after the query has finished. This paramter can be nil.
  */
--(void)renameColumn:(NSString *)oldName newName:(NSString *)newName table:(NSString *)table schema:(NSString *_Nullable)schema completion:(GWMDBErrorCompletionBlock _Nullable)completion;
-
+-(void)renameColumn:(GWMColumnName)oldName newName:(GWMColumnName)newName table:(GWMTableName)table schema:(GWMSchemaName _Nullable)schema completion:(GWMDBErrorCompletionBlock _Nullable)completion;
 /*!
  * @discussion Add a column to a given table in a SQLite database.
  * @param columnDefinition A GWMColumnDefinition object that represents the table column to be added.
@@ -288,42 +301,38 @@ extern NSString * const GWMPK_UserDatabaseSchemaVersion;
  * @param schema The database that contains the table column to be renamed. Leaving this parameter nil will have the same result as inputing @"main".
  * @param completion A block that will run after the query has finished. This paramter can be nil.
  */
--(void)addColumn:(GWMColumnDefinition *)columnDefinition toTable:(NSString *)table schema:(NSString *_Nullable)schema completion:(GWMDBErrorCompletionBlock _Nullable)completion;
-
+-(void)addColumn:(GWMColumnDefinition *)columnDefinition toTable:(GWMTableName)table schema:(GWMSchemaName _Nullable)schema completion:(GWMDBErrorCompletionBlock _Nullable)completion;
 /*!
  * @discussion Add a trigger to a given SQLite database.
  * @param triggerDefinition A GWMTriggerDefinition object that represents the trigger to be added.
  * @param completion A block that will run after the query has finished. This paramter can be nil.
  */
 -(void)createTrigger:(GWMTriggerDefinition*)triggerDefinition completion:(GWMDBCompletionBlock _Nullable)completion;
-
 /*!
  * @discussion Drop a trigger from a given SQLite database.
  * @param trigger A NSString representation of the name of the trigger to drop.
  * @param schema The database that contains the table column to be renamed. Leaving this parameter nil will have the same result as inputing @"main".
  * @param completion A block that will run after the query has finished. This paramter can be nil.
  */
--(void)dropTrigger:(NSString*)trigger schema:(NSString*_Nullable)schema completion:(GWMDBCompletionBlock _Nullable)completion;
+-(void)dropTrigger:(GWMTriggerName)trigger schema:(GWMSchemaName _Nullable)schema completion:(GWMDBCompletionBlock _Nullable)completion;
 
 #pragma mark - CRUD Database Operations
 
 #pragma mark Create
-
 /*!
  * @discussion Insert multiple records into a SQLite database table with new values for columns that you specify.
  * @param table The name of the table to insert into. This parameter cannot be nil.
  * @param valuesToInsert An NSArray of NSDictionary values to insert where each dictionary represents a record to be inserted. Within each dictionary, the key is the table column and the value is the value to insert. Every dictionary must have the same number of entries and the keys must be in the same order. SQLite's binding functions are used to bind the values to the statement.
  * @param completionHandler A block that will run after the query has finished. This paramter can be nil.
  */
--(void)insertIntoTable:(NSString *)table newValues:(NSArray<NSDictionary<GWMColumnName,id> *> *)valuesToInsert completion:(GWMDatabaseResultBlock _Nullable)completionHandler;
-
+-(void)insertIntoTable:(GWMTableName)table newValues:(NSArray<NSDictionary<GWMColumnName,id> *> *)valuesToInsert completion:(GWMDatabaseResultBlock _Nullable)completionHandler;
 /*!
  * @discussion Insert records into a SQLite database table with new values for columns that you specify.
  * @param table The name of the table to insert into. This parameter cannot be nil.
  * @param values An NSDictionary of values to insert where the key is the table column and the value is the value to insert. SQLite's binding functions are used to bind the values to the statement.
  * @param completionHandler A block that will run after the query has finished. This paramter can be nil.
  */
--(void)insertIntoTable:(NSString *)table values:(NSDictionary<GWMColumnName,id> *)values completion:(GWMDatabaseResultBlock _Nullable)completionHandler;
+-(void)insertIntoTable:(GWMTableName)table values:(NSDictionary<GWMColumnName,id> *)values completion:(GWMDatabaseResultBlock _Nullable)completionHandler;
 /*!
  * @discussion Insert a single record into a SQLite database table with new values for columns that you specify.
  * @param table The name of the table to insert into. This parameter cannot be nil.
@@ -331,7 +340,7 @@ extern NSString * const GWMPK_UserDatabaseSchemaVersion;
  * @param onConflict The SQLite conflict resolution algorithm to use. GWMDBOnConflictAbort is the default.
  * @param completionHandler A block that will run after the query has finished. This paramter can be nil.
  */
--(void)insertIntoTable:(NSString *)table values:(NSDictionary<GWMColumnName,id> *)values onConflict:(GWMDBOnConflict)onConflict completion:(GWMDatabaseResultBlock _Nullable)completionHandler;
+-(void)insertIntoTable:(GWMTableName)table values:(NSDictionary<GWMColumnName,id> *)values onConflict:(GWMDBOnConflict)onConflict completion:(GWMDatabaseResultBlock _Nullable)completionHandler;
 
 -(void)insertWithStatement:(NSString *)statement values:(NSArray *)values completion:(GWMDBCompletionBlock _Nullable)completion;
 
@@ -373,7 +382,7 @@ extern NSString * const GWMPK_UserDatabaseSchemaVersion;
      }
  }];
  */
--(GWMDatabaseResult *)updateTable:(NSString *)tableName withValues:(NSDictionary<GWMColumnName,NSObject*>*)newValues criteria:(NSDictionary<GWMColumnName,NSObject*>*_Nullable)criteria completion:(GWMDatabaseResultBlock _Nullable)completionHandler;
+-(GWMDatabaseResult *)updateTable:(GWMTableName)tableName withValues:(NSDictionary<GWMColumnName,NSObject*>*)newValues criteria:(NSDictionary<GWMColumnName,NSObject*>*_Nullable)criteria completion:(GWMDatabaseResultBlock _Nullable)completionHandler;
 
 /*!
  * @discussion Update records in a SQLite database table with new values for columns that you specify.
@@ -384,7 +393,7 @@ extern NSString * const GWMPK_UserDatabaseSchemaVersion;
  * @param completionHandler A block of code that will run after the query has finished. Within this block, you have access to the record that was updated or an NSError if the query failed.
  * @return A GWMDatabaseResult object.
  */
--(GWMDatabaseResult *)updateTable:(NSString *)tableName withValues:(NSDictionary<GWMColumnName,NSObject*>*)newValues criteria:(NSDictionary<GWMColumnName,NSObject*>*_Nullable)criteria onConflict:(GWMDBOnConflict)onConflict completion:(GWMDatabaseResultBlock _Nullable)completionHandler;
+-(GWMDatabaseResult *)updateTable:(GWMTableName)tableName withValues:(NSDictionary<GWMColumnName,NSObject*>*)newValues criteria:(NSDictionary<GWMColumnName,NSObject*>*_Nullable)criteria onConflict:(GWMDBOnConflict)onConflict completion:(GWMDatabaseResultBlock _Nullable)completionHandler;
 
 #pragma mark Delete
 /*!
@@ -394,7 +403,7 @@ extern NSString * const GWMPK_UserDatabaseSchemaVersion;
  * @param completionHandler A block of code that will run after the query has finished. This parameter can be nil.
  * @warning If this method is called with nil criteria, all records in the specified table will be deleted.
  */
--(void)deleteFromTable:(NSString *)table criteria:(NSArray<NSDictionary<GWMColumnName,NSObject*>*>*_Nullable)criteria completion:(GWMDBErrorCompletionBlock _Nullable)completionHandler;
+-(void)deleteFromTable:(GWMTableName)table criteria:(NSArray<NSDictionary<GWMColumnName,NSObject*>*>*_Nullable)criteria completion:(GWMDBErrorCompletionBlock _Nullable)completionHandler;
 
 #pragma mark - Convenience
 /*!
@@ -406,7 +415,7 @@ extern NSString * const GWMPK_UserDatabaseSchemaVersion;
  * @param columnInfo An NSDictionary where the key is the new column and the value is the old column. This parameter cannot be nil.
  * @param completionHandler A block of code that will run after the query has finished. The block takes one argument which is of type NSError. This parameter can be nil.
  */
--(void)migrateDataFromTable:(NSString *_Nonnull)fromTable fromSchema:(NSString*_Nullable)fromSchema toTable:(NSString *_Nonnull)toTable toSchema:(NSString*_Nullable)toSchema columns:(NSDictionary<GWMColumnName,GWMColumnName>*_Nonnull)columnInfo completion:(GWMDBErrorCompletionBlock _Nullable)completionHandler;
+-(void)migrateDataFromTable:(GWMTableName)fromTable fromSchema:(GWMSchemaName _Nullable)fromSchema toTable:(GWMTableName)toTable toSchema:(GWMSchemaName _Nullable)toSchema columns:(NSDictionary<GWMColumnName,GWMColumnName>*_Nonnull)columnInfo completion:(GWMDBErrorCompletionBlock _Nullable)completionHandler;
 
 #pragma mark - Transactions
 
@@ -422,7 +431,7 @@ extern NSString * const GWMPK_UserDatabaseSchemaVersion;
  * @param criteria An NSArray of NSDictionary entries where the key is the name of the table column and the value is the value from the row to match against. Entries from different dictionaries will cause an OR comparison. Entries within the same dictionary will cause an AND comparison. This parameter can be nil.
  * @return An integer indicating a record count.
  */
--(NSInteger)countOfRecordsFromTable:(NSString *)table column:(GWMColumnName)column criteria:(NSArray<NSDictionary<GWMColumnName,id>*>*_Nullable)criteria;
+-(NSInteger)countOfRecordsFromTable:(GWMTableName)table column:(GWMColumnName)column criteria:(NSArray<NSDictionary<GWMColumnName,id>*>*_Nullable)criteria;
 /*!
  * @discussion Get the count of records in a table in a SQLite database. This method does not return any rows, only the number of potential rows.
  * @param statement A SQLite select statment. The result should have a single column of which the data type is an integer.

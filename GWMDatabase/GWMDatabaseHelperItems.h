@@ -8,7 +8,7 @@
 
 @import Foundation;
 
-typedef NSString *GWMDatabaseName;
+typedef NSString *GWMDatabaseFileName;
 typedef NSString *GWMDatabaseAlias;
 typedef NSString *GWMSchemaName;
 typedef NSString *GWMTableName;
@@ -182,7 +182,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface GWMDatabaseItem : NSObject
 
-@property (nonatomic, strong) GWMDatabaseName name;
+@property (nonatomic, strong) GWMDatabaseFileName name;
 @property (nonatomic, strong) NSString *filename;
 
 @end
