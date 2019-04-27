@@ -8,10 +8,15 @@
 
 @import Foundation;
 
+typedef NSString *GWMDatabaseName;
+typedef NSString *GWMDatabaseAlias;
 typedef NSString *GWMSchemaName;
 typedef NSString *GWMTableName;
+typedef NSString *GWMTableAlias;
 typedef NSString *GWMColumnName;
 typedef NSString *GWMColumnAffinity;
+typedef NSString *GWMTriggerName;
+typedef NSString *GWMConstraintName;
 
 typedef NS_OPTIONS(NSInteger, GWMColumnOption) {
     GWMColumnOptionNone = 0,
@@ -99,7 +104,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface GWMTableConstraintDefinition : NSObject
 
 ///@discussion An NSString representation of the name of the constraint.
-@property (nonatomic, readonly) NSString *name;
+@property (nonatomic, readonly) GWMConstraintName name;
 ///@discussion The style of the constraint. Choices are PRIMARY KEY, UNIQUE, CHECK, or FOREIGN KEY.
 @property (nonatomic, readonly) GWMConstraintStyle style;
 ///@discussion An NSArray of NSStrings that represent the names of columns to be involved in the constraint.
@@ -107,8 +112,8 @@ NS_ASSUME_NONNULL_BEGIN
 ///@discussion An NSString substring that will be used to build a SQLite SELECT statement.
 @property (nonatomic, readonly) NSString *body;
 
-+(instancetype)tableConstraintWithName:(NSString*)name style:(GWMConstraintStyle)style columns:(NSArray<GWMColumnName>*_Nullable)columns body:(NSString*)body;
--(instancetype)initWithName:(NSString*)name style:(GWMConstraintStyle)style columns:(NSArray<GWMColumnName>*_Nullable)columns body:(NSString*)body;
++(instancetype)tableConstraintWithName:(GWMConstraintName)name style:(GWMConstraintStyle)style columns:(NSArray<GWMColumnName>*_Nullable)columns body:(NSString*)body;
+-(instancetype)initWithName:(GWMConstraintName)name style:(GWMConstraintStyle)style columns:(NSArray<GWMColumnName>*_Nullable)columns body:(NSString*)body;
 
 @end
 
@@ -121,7 +126,7 @@ NS_ASSUME_NONNULL_BEGIN
 ///@discussion An NSString representation of the name of the table to be created.
 @property (nonatomic, readonly) GWMTableName table;
 ///@discussion An NSString representation of the alias to be used for the table.
-@property (nonatomic, readonly) NSString *alias;
+@property (nonatomic, readonly) GWMTableAlias _Nullable alias;
 ///@discussion An NSString representation of the name of the database where the table will be created.
 @property (nonatomic, readonly) GWMSchemaName _Nullable schema;
 
@@ -130,8 +135,8 @@ NS_ASSUME_NONNULL_BEGIN
 ///@discussion An NSArray of GWMTableConstraintDefinition items that represent the table's constraints.
 @property (nonatomic, readonly) NSArray<GWMTableConstraintDefinition*> *_Nullable constraints;
 
-+(instancetype)tableDefinitionWithTable:(GWMTableName)table alias:(NSString *)alias schema:(GWMSchemaName _Nullable)schema;
--(instancetype)initWithTable:(GWMTableName)table alias:(NSString *)alias schema:(GWMSchemaName _Nullable)schema;
++(instancetype)tableDefinitionWithTable:(GWMTableName)table alias:(GWMTableAlias _Nullable)alias schema:(GWMSchemaName _Nullable)schema;
+-(instancetype)initWithTable:(GWMTableName)table alias:(GWMTableAlias _Nullable)alias schema:(GWMSchemaName _Nullable)schema;
 
 @end
 
@@ -141,11 +146,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface GWMTriggerDefinition : NSObject
 
-///@discussion An NSString representation of the name of the trigger.
-@property (nonatomic, readonly) NSString *name;
-///@discussion An NSString representation of the name of the database where the trigger will be created.
+///@brief The name of the trigger.
+@property (nonatomic, readonly) GWMTriggerName name;
+///@brief The name of the database where the trigger will be created.
 @property (nonatomic, readonly) GWMSchemaName _Nullable schema;
-///@discussion An NSString representation of the name of the table the trigger wil be created for.
+///@brief The name of the table the trigger wil be created for.
 @property (nonatomic, readonly) GWMTableName table;
 ///@discussion An enum that determines when the trigger will be invoked in relation to data being inserted, updated, or deleted. Choices are BEFORE, AFTER, or INSTEAD OF.
 @property (nonatomic, readonly) GWMTriggerTiming timing;
@@ -157,13 +162,28 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) NSArray<GWMColumnName> *columns;
 ///@discussion An NSString representation of the body of the trigger.
 @property (nonatomic, readonly) NSString *body;
-
-///@discussion An NSString representation of a CREATE TRIGGER statement that will create a trigger based on all the property values.
+/*!
+ * @brief A CREATE TRIGGER statement.
+ * @discussion This is a complete CREATE TRIGGER statement based on all the parameters that were input during construction.
+ */
 @property (nonatomic, readonly) NSString *triggerString;
 
-+(instancetype)triggerDefinitionWithName:(NSString*)name schema:(GWMSchemaName _Nullable)schema table:(GWMTableName)table timing:(GWMTriggerTiming)timing style:(GWMTriggerStyle)style when:(NSString*_Nullable)when columns:(NSArray<NSString*>*)columns body:(NSString*)body;
++(instancetype)triggerDefinitionWithName:(GWMTriggerName)name schema:(GWMSchemaName _Nullable)schema table:(GWMTableName)table timing:(GWMTriggerTiming)timing style:(GWMTriggerStyle)style when:(NSString*_Nullable)when columns:(NSArray<GWMColumnName>*)columns body:(NSString*)body;
 
--(instancetype)initWithName:(NSString*)name schema:(GWMSchemaName _Nullable)schema table:(GWMTableName)table timing:(GWMTriggerTiming)timing style:(GWMTriggerStyle)style when:(NSString*_Nullable)when columns:(NSArray<NSString*>*)columns body:(NSString*)body;
+-(instancetype)initWithName:(GWMTriggerName)name schema:(GWMSchemaName _Nullable)schema table:(GWMTableName)table timing:(GWMTriggerTiming)timing style:(GWMTriggerStyle)style when:(NSString*_Nullable)when columns:(NSArray<GWMColumnName>*)columns body:(NSString*)body;
+
+@end
+
+/*
+ PRAGMA database_list;
+ 
+ This pragma works like a query to return one row for each database attached to the current database connection. The second column is the "main" for the main database file, "temp" for the database file used to store TEMP objects, or the name of the ATTACHed database for other database files. The third column is the name of the database file itself, or an empty string if the database is not associated with a file.
+ */
+
+@interface GWMDatabaseItem : NSObject
+
+@property (nonatomic, strong) GWMDatabaseName name;
+@property (nonatomic, strong) NSString *filename;
 
 @end
 
