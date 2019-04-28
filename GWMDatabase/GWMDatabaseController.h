@@ -22,12 +22,14 @@ typedef NS_ENUM (NSInteger, GWMDBDateStringLength) {
 };
 
 typedef NS_ENUM (NSInteger, GWMDBOperationResult) {
-    GWMDBOperationAlreadyOpen = 0,
-    GWMDBOperationJustOpened,
-    GWMDBOperationAlreadyClosed,
-    GWMDBOperationJustClosed,
-    GWMDBOperationUnableToOpen,
-    GWMDBOperationUnableToClose
+    GWMDBOperationDatabaseOpened = 0,
+    GWMDBOperationDatabaseNotOpened,
+    GWMDBOperationDatabaseClosed,
+    GWMDBOperationDatabaseNotClosed,
+    GWMDBOperationDatabaseAttached,
+    GWMDBOperationDatabaseNotAttached,
+    GWMDBOperationDatabaseDetached,
+    GWMDBOperationDatabaseNotDetached,
 };
 
 typedef NS_ENUM(NSInteger, GWMDBOnConflict) {
@@ -43,18 +45,18 @@ typedef NSString *GWMSQLiteErrorName;
 NS_ASSUME_NONNULL_BEGIN
 
 /*!
- * @brief A block that runs on completion of some SQLite queries.
+ * @brief Runs on completion of some SQLite queries.
  * @discussion This block takes no arguments and returns void.
  */
 typedef void (^GWMDBCompletionBlock)(void);
 /*!
- * @brief A block that runs on completion of some SQLite queries.
+ * @brief Runs on completion of some SQLite queries.
  * @discussion This block takes one NSError argument and returns void.
  * @param error An NSError object that is generated if there was a problem.
  */
 typedef void (^GWMDBErrorCompletionBlock)(NSError *_Nullable error);
 /*!
- * @brief A block that runs on completion of some SQLite queries.
+ * @brief Runs on completion of some SQLite queries.
  * @discussion This block takes two arguments, a GWMDataItem and a NSError, and returns void.
  * @param itm A GWMDataItem containing the itemID of the record that was just inserted or updated.
  * @param error An NSError object that is generated if there was a problem.
@@ -137,6 +139,9 @@ extern NSExceptionName const GWMPreparingStatementException;
 extern NSExceptionName const GWMBindingValueException;
 extern NSExceptionName const GWMExecutingStatementException;
 extern NSExceptionName const GWMFinalizingStatementException;
+
+#pragma mark Schema Names
+extern GWMSchemaName const GWMSchemaNameMain;
 
 #pragma mark Preferences
 extern NSString * const GWMPK_MainDatabaseName;
@@ -230,17 +235,17 @@ extern NSString * const GWMPK_UserDatabaseSchemaVersion;
  * @brief ATTACH a SQLite database.
  * @discussion Uses an ATTACH statment to open an additional SQLite database.
  * @param databaseFileName The file name of the SQLite database to open.
- * @param schema The desired alias to be used to refer to the SQLite database.
+ * @param alias The desired alias to be used to refer to the SQLite database.
  * @return A BOOL value indicating whether the statement execution was successful.
  */
--(BOOL)attachDatabase:(GWMDatabaseFileName)databaseFileName schemaName:(GWMSchemaName)schema;
+-(BOOL)attachDatabase:(GWMDatabaseFileName)databaseFileName schemaName:(GWMSchemaName)alias;
 /*!
  * @brief DETACH a SQLite database.
  * @discussion Uses an DETACH statment to close the specified SQLite database.
- * @param schema The alias name of the SQLite database to close.
+ * @param alias The alias name of the SQLite database to close.
  * @return A BOOL value indicating whether the statement execution was successful.
  */
--(BOOL)detachDatabase:(GWMSchemaName)schema;
+-(BOOL)detachDatabase:(GWMSchemaName)alias;
 -(GWMDBOperationResult)openDatabase:(NSString *)name extension:(NSString *)extension;
 -(GWMDBOperationResult)closeDatabase;
 -(BOOL)isDatabaseOpen;
@@ -262,7 +267,7 @@ extern NSString * const GWMPK_UserDatabaseSchemaVersion;
  * @param schema The database in which to create the table.
  * @param completion A block that will run after the query has finished. This paramter can be nil.
  */
--(void)createTable:(NSString *)tableName columns:(NSArray<GWMColumnDefinition*>*)columnDefinitions constraints:(NSDictionary<GWMConstraintName,NSString*>*)constraintDefinitions schema:(GWMSchemaName _Nullable)schema completion:(GWMDBCompletionBlock _Nullable)completion;
+-(void)createTable:(GWMTableName)tableName columns:(NSArray<GWMColumnDefinition*>*)columnDefinitions constraints:(NSDictionary<GWMConstraintName,NSString*>*)constraintDefinitions schema:(GWMSchemaName _Nullable)schema completion:(GWMDBCompletionBlock _Nullable)completion;
 /*!
  * @brief Drop a table from a SQLite database.
  * @param className A NSString representation of the class associated with the table to drop.

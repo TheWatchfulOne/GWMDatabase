@@ -182,8 +182,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface GWMDatabaseItem : NSObject
 
-@property (nonatomic, strong) GWMDatabaseFileName name;
-@property (nonatomic, strong) NSString *filename;
+@property (nonatomic, strong) GWMSchemaName name;
+@property (nonatomic, strong) GWMDatabaseFileName filename;
 
 @end
 

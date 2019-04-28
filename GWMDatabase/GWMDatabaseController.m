@@ -85,6 +85,9 @@ NSExceptionName const GWMBindingValueException = @"GWMBindingValueException";
 NSExceptionName const GWMExecutingStatementException = @"GWMExecutingStatementException";
 NSExceptionName const GWMFinalizingStatementException = @"GWMFinalizingStatementException";
 
+#pragma mark Schema Names
+GWMSchemaName const GWMSchemaNameMain = @"main";
+
 #pragma mark Preferences
 NSString * const GWMPK_MainDatabaseName = @"GWMPK_MainDatabaseName";
 NSString * const GWMPK_MainDatabaseExtension = @"GWMPK_MainDatabaseExtension";
@@ -394,7 +397,7 @@ NSString * const GWMPK_UserDatabaseSchemaVersion = @"GWMPK_UserDatabaseSchemaVer
      See also the PRAGMA quick_check command which does most of the checking of PRAGMA integrity_check but runs much faster.
      */
     if(!schema)
-        schema = @"main";
+        schema = GWMSchemaNameMain;
     
     NSString *statement;
     
@@ -443,7 +446,7 @@ NSString * const GWMPK_UserDatabaseSchemaVersion = @"GWMPK_UserDatabaseSchemaVer
     NSString *statement = nil;
     
     if(!schema)
-        schema = @"main";
+        schema = GWMSchemaNameMain;
     
     if(!table)
         statement = [NSString stringWithFormat:@"PRAGMA %@.foreign_key_check",schema];
@@ -486,8 +489,22 @@ NSString * const GWMPK_UserDatabaseSchemaVersion = @"GWMPK_UserDatabaseSchemaVer
 
 #pragma mark - Attach and Detach Database
 
--(BOOL)attachDatabase:(GWMDatabaseFileName)databaseFileName schemaName:(GWMSchemaName)alias
+-(GWMDBOperationResult)attachDatabase:(GWMDatabaseFileName)databaseFileName schemaName:(GWMSchemaName)alias
 {
+    NSArray<GWMDatabaseItem*> *databases = self.databases;
+    
+    __block BOOL attached = NO;
+    [databases enumerateObjectsUsingBlock:^(GWMDatabaseItem *_Nonnull db, NSUInteger idx, BOOL *stop){
+        if ([db.name isEqualToString:alias]) {
+            attached = YES;
+            *stop = YES;
+        }
+    }];
+    if(attached){
+        NSLog(@"Database with alias '%@' already attached", alias);
+        return GWMDBOperationDatabaseAttached;
+    }
+    
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentPath = [paths firstObject];
     
@@ -499,20 +516,20 @@ NSString * const GWMPK_UserDatabaseSchemaVersion = @"GWMPK_UserDatabaseSchemaVer
     
     if (executeCode != GWMSQLiteResultOK) {
 
-        NSLog(@"Error while attaching database '%@': '%s'", databaseFileName, errorMessageC);
+        NSLog(@"Error while attaching database '%@' (%@): '%s'", databaseFileName, alias, errorMessageC);
         sqlite3_free(errorMessageC);
-        return NO;
+        return GWMDBOperationDatabaseNotAttached;
     }
 
     NSLog(@"Successfully attached database: '%@' as '%@'", databaseFileName, alias);
-    return YES;
+    return GWMDBOperationDatabaseAttached;
 }
 
--(BOOL)detachDatabase:(GWMDatabaseAlias)databaseName
+-(GWMDBOperationResult)detachDatabase:(GWMDatabaseAlias)databaseName
 {
     if (self.isTransactionInProgress) {
         NSLog(@"Can't detach database: %@ while transaction: '%@' is in progress", databaseName, self.transactionName);
-        return NO;
+        return GWMDBOperationDatabaseNotDetached;
     }
     NSString *statement = [NSString stringWithFormat:@"DETACH DATABASE \'%@\';", databaseName];
     char *errorMessageC;
@@ -522,10 +539,10 @@ NSString * const GWMPK_UserDatabaseSchemaVersion = @"GWMPK_UserDatabaseSchemaVer
     if (result != GWMSQLiteResultOK) {
         NSLog(@"Error while detaching database: '%@' Message: '%s'", databaseName, errorMessageC);
         sqlite3_free(errorMessageC);
-        return NO;
+        return GWMDBOperationDatabaseNotDetached;
     } else {
         NSLog(@"Successfully detached database: '%@'", databaseName);
-        return YES;
+        return GWMDBOperationDatabaseDetached;
     }
 }
 
@@ -551,7 +568,7 @@ NSString * const GWMPK_UserDatabaseSchemaVersion = @"GWMPK_UserDatabaseSchemaVer
 -(GWMDBOperationResult)openDatabase:(NSString *)name extension:(NSString *)extension
 {
     if ([self isDatabaseOpen])
-        return GWMDBOperationAlreadyOpen;
+        return GWMDBOperationDatabaseOpened;
     
     self.databasePath = [[NSBundle mainBundle] pathForResource:name ofType:extension];
     
@@ -572,48 +589,48 @@ NSString * const GWMPK_UserDatabaseSchemaVersion = @"GWMPK_UserDatabaseSchemaVer
     if (openCode != GWMSQLiteResultOK) {
         NSLog(@"*** %@ at path: %@ with error: '%s' ***", GWMSQLiteErrorOpeningDatabase, self.databasePath, sqlite3_errmsg(self.database));
         [self closeDatabase];
-        return GWMDBOperationUnableToOpen;
+        return GWMDBOperationDatabaseNotOpened;
     }
     
     NSLog(@"*** SQLite version: %@ ***", [self sqliteVersion]);
     NSLog(@"*** SQLite library version: %@ ***", [self sqliteLibraryVersion]);
     
-    return GWMDBOperationJustOpened;
+    return GWMDBOperationDatabaseOpened;
 }
 
 -(GWMDBOperationResult)closeDatabase
 {
     
     if (![self isDatabaseOpen])
-        return GWMDBOperationAlreadyClosed;
+        return GWMDBOperationDatabaseClosed;
 
     if (self.isTransactionInProgress) {
         NSLog(@"*** Can't close database because transaction: '%@' is in progress ***", self.transactionName);
-        return GWMDBOperationUnableToClose;
+        return GWMDBOperationDatabaseNotClosed;
     }
     
     NSArray<GWMDatabaseItem*> *databases = self.databases;
     
-    for (GWMDatabaseItem *db in databases) {
-        if(![db.name isEqualToString:@"main"])
+    [databases enumerateObjectsUsingBlock:^(GWMDatabaseItem *_Nonnull db, NSUInteger idx, BOOL *stop){
+        if(![db.name isEqualToString:GWMSchemaNameMain])
             [self detachDatabase:db.name];
-    }
+    }];
     
     int closeCode = sqlite3_close(self.database);
     
     if (closeCode != GWMSQLiteResultOK) {
         NSLog(@"*** %@: Message:'%s' ***", GWMSQLiteErrorClosingDatabase, sqlite3_errmsg(self.database));
-        return GWMDBOperationUnableToClose;
+        return GWMDBOperationDatabaseNotClosed;
     }
     self.database = NULL;
     
     NSLog(@"*** Database was closed ***");
-    return GWMDBOperationJustClosed;
+    return GWMDBOperationDatabaseClosed;
 }
 
 -(BOOL)isDatabaseOpen
 {
-    return self.database == NULL ? NO : YES;
+    return self.database != NULL;
 }
 
 #pragma mark -  Helper Methods
@@ -955,7 +972,7 @@ NSString * const GWMPK_UserDatabaseSchemaVersion = @"GWMPK_UserDatabaseSchemaVer
     [self createTable:table columns:sortedColumns constraints:constraintDefs schema:schema completion:completion];
 }
 
--(void)createTable:(NSString *)tableName columns:(nonnull NSArray<GWMColumnDefinition *> *)columnDefinitions constraints:(nonnull NSDictionary<GWMConstraintName,NSString *> *)constraintDefinitions schema:(GWMSchemaName _Nullable)schema completion:(GWMDBCompletionBlock _Nullable)completion
+-(void)createTable:(GWMTableName)tableName columns:(nonnull NSArray<GWMColumnDefinition *> *)columnDefinitions constraints:(nonnull NSDictionary<GWMConstraintName,NSString *> *)constraintDefinitions schema:(GWMSchemaName _Nullable)schema completion:(GWMDBCompletionBlock _Nullable)completion
 {
     NSMutableArray<NSString*> *mutableTableColumnDefinitions = [NSMutableArray new];
     
@@ -1005,7 +1022,7 @@ NSString * const GWMPK_UserDatabaseSchemaVersion = @"GWMPK_UserDatabaseSchemaVer
 
 -(void)renameTable:(GWMTableName)oldName newName:(GWMTableName)newName schema:(GWMSchemaName)schema completion:(GWMDBErrorCompletionBlock)completion
 {
-    NSString *alias = schema ? schema : @"main";
+    NSString *alias = schema ? schema : GWMSchemaNameMain;
     
     NSString *statement = [NSString stringWithFormat:@"ALTER TABLE %@.%@ RENAME TO %@", alias, oldName, newName];
     NSError *error = nil;
@@ -1029,7 +1046,7 @@ NSString * const GWMPK_UserDatabaseSchemaVersion = @"GWMPK_UserDatabaseSchemaVer
 
 -(void)renameColumn:(GWMColumnName)oldName newName:(GWMColumnName)newName table:(GWMTableName)table schema:(GWMSchemaName)schema completion:(GWMDBErrorCompletionBlock)completion
 {
-    NSString *alias = schema ? schema : @"main";
+    NSString *alias = schema ? schema : GWMSchemaNameMain;
     
     NSString *statement = [NSString stringWithFormat:@"ALTER TABLE %@.%@ RENAME COLUMN %@ TO %@", alias, table, oldName, newName];
     NSError *error = nil;
@@ -1042,7 +1059,7 @@ NSString * const GWMPK_UserDatabaseSchemaVersion = @"GWMPK_UserDatabaseSchemaVer
 
 -(void)addColumn:(GWMColumnDefinition *)columnDefinition toTable:(GWMTableName)table schema:(GWMSchemaName)schema completion:(GWMDBErrorCompletionBlock)completion
 {
-    NSString *alias = schema ? schema : @"main";
+    NSString *alias = schema ? schema : GWMSchemaNameMain;
     
     NSString *statement = [NSString stringWithFormat:@"ALTER TABLE %@.%@ ADD COLUMN %@", alias, table, [columnDefinition createString]];
     NSError *error = nil;
@@ -2233,10 +2250,10 @@ NSString * const GWMPK_UserDatabaseSchemaVersion = @"GWMPK_UserDatabaseSchemaVer
     NSString *fromColumnString = [fromColumns componentsJoinedByString:@", "];
     
     if(!toSchema)
-        toSchema = @"main";
+        toSchema = GWMSchemaNameMain;
     
     if(!fromSchema)
-        fromSchema = @"main";
+        fromSchema = GWMSchemaNameMain;
     
     NSString *statement = [NSString stringWithFormat:@"INSERT INTO %@.%@ (%@) SELECT %@ FROM %@.%@", toSchema,toTable, toColumnString, fromColumnString, fromSchema, fromTable];
     
