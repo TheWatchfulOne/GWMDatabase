@@ -206,6 +206,11 @@ extern NSString * const GWMPK_UserDatabaseSchemaVersion;
  * @return A NSArray of GWMDatabaseItem objects.
  */
 -(NSArray<GWMDatabaseItem*> *_Nonnull)databases;
+/*!
+ * @brief Tables in the databases.
+ * @return A NSArray of GWMTableName objects.
+ */
+-(NSArray<GWMTableName>*)tables;
 
 #pragma mark - Maintenance
 /*!
@@ -238,14 +243,14 @@ extern NSString * const GWMPK_UserDatabaseSchemaVersion;
  * @param alias The desired alias to be used to refer to the SQLite database.
  * @return A BOOL value indicating whether the statement execution was successful.
  */
--(BOOL)attachDatabase:(GWMDatabaseFileName)databaseFileName schemaName:(GWMSchemaName)alias;
+-(GWMDBOperationResult)attachDatabase:(GWMDatabaseFileName)databaseFileName schemaName:(GWMSchemaName)alias;
 /*!
  * @brief DETACH a SQLite database.
  * @discussion Uses an DETACH statment to close the specified SQLite database.
  * @param alias The alias name of the SQLite database to close.
  * @return A BOOL value indicating whether the statement execution was successful.
  */
--(BOOL)detachDatabase:(GWMSchemaName)alias;
+-(GWMDBOperationResult)detachDatabase:(GWMSchemaName)alias;
 -(GWMDBOperationResult)openDatabase:(NSString *)name extension:(NSString *)extension;
 -(GWMDBOperationResult)closeDatabase;
 -(BOOL)isDatabaseOpen;

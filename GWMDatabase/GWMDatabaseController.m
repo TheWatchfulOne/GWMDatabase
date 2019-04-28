@@ -265,6 +265,37 @@ NSString * const GWMPK_UserDatabaseSchemaVersion = @"GWMPK_UserDatabaseSchemaVer
     return databaseVersion;
 }
 
+-(NSArray<GWMTableName>*)tables
+{
+    if (!self.isDatabaseOpen)
+        return nil;
+    //char *sql = "SELECT name FROM sqlite_master WHERE type='table'";
+    NSMutableArray<GWMTableName> *mutableTables = [NSMutableArray<GWMTableName> new];
+    
+    static sqlite3_stmt *sqlite3PreparedStatement;
+    char *sql = "SELECT name FROM sqlite_master WHERE type='table'";
+    int prepareCode = sqlite3_prepare_v2(self.database, sql, -1, &sqlite3PreparedStatement, NULL);
+    if(prepareCode != GWMSQLiteResultOK)
+        NSLog(@"%@: %s", GWMSQLiteErrorPreparingStatement, sqlite3_errmsg(self.database));
+    else {
+        int stepCode = GWMSQLiteResultRow;
+        while(stepCode == GWMSQLiteResultRow) {
+            stepCode = sqlite3_step(sqlite3PreparedStatement);
+            if (stepCode == GWMSQLiteResultRow) {
+                
+                char *tableNameC = (char *) sqlite3_column_text(sqlite3PreparedStatement, 0);
+                GWMTableName table = (GWMTableName)[NSString stringWithUTF8String:tableNameC];
+                
+                [mutableTables addObject:table];
+            }
+        }
+        if(stepCode != GWMSQLiteResultRow && stepCode != GWMSQLiteResultDone)
+            NSLog(@"%@: %s", GWMSQLiteErrorSteppingToRow, sqlite3_errmsg(self.database));
+    }
+    
+    return [NSArray<GWMTableName> arrayWithArray:mutableTables];
+}
+
 -(NSArray<GWMDatabaseItem*>*)databases
 {
     /*
