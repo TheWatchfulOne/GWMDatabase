@@ -264,11 +264,11 @@ typedef NSString *GWMIndexName;
 @interface GWMForeignKeyIntegrityCheckItem : NSObject
 
 ///@discussion An NSString representation of the name of the table that contains the REFERENCES clause.
-@property (nonatomic, strong) NSString *_Nullable table;
+@property (nonatomic, strong) GWMTableName _Nullable table;
 ///@discussion An NSInteger. The rowid of the row that contains the invalid REFERENCES clause, or NULL if the child table is a WITHOUT ROWID table.
 @property (nonatomic, assign) NSInteger rowID;
 ///@discussion An NSString representation of the name of the table that is referred to.
-@property (nonatomic, strong) NSString *_Nullable referredTable;
+@property (nonatomic, strong) GWMTableName _Nullable referredTable;
 ///@discussion An NSInteger. The index of the specific foreign key constraint that failed.
 @property (nonatomic, assign) NSInteger failedRowID;
 

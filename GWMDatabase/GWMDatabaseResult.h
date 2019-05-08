@@ -11,7 +11,7 @@
 
 #pragma mark SQLite Result Codes
 // https://sqlite.org/c3ref/c_abort.html
-typedef NS_OPTIONS(NSInteger, GWMSQLiteResult) {
+typedef NS_ENUM(NSInteger, GWMSQLiteResult) {
     GWMSQLiteResultOK = SQLITE_OK,
     GWMSQLiteResultError = SQLITE_ERROR,
     GWMSQLiteResultBusy = SQLITE_BUSY,
