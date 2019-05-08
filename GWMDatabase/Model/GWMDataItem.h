@@ -102,27 +102,32 @@ typedef void (^GWMSaveDataItemCompletionBlock)(NSInteger itemID, NSError *_Nulla
  */
 +(NSArray<GWMColumnDefinition*>*)columnDefinitionItems;
 /*!
- *@brief Information used to create and select data from tables in a SQLite database.
- *@discussion An NSDictionary containing SQLite table constraint definations where the key is the name of the constraint and the value is a string containing the details of the constraint.
- *@return A NSDictionary object.
+ *@brief Used to create table constraints in a SQLite database.
+ *@discussion An NSArray of GWMTableConstraintDefinition items.
+ *@return A NSArray object.
  */
-+(NSDictionary<NSString*,NSString*> *_Nullable)constraintDefinitions;
++(NSArray<GWMTableConstraintDefinition*>*_Nullable)constraintDefinitionItems;
+/*!
+ *@brief Used to create indexes in a SQLite database.
+ *@return An NSArray of GWMIndexDefinition objects.
+ */
++(NSArray<GWMIndexDefinition*>*_Nullable)indexDefinitionItems;
 /*!
  *@brief Used to create triggers in a SQLite database.
  *@return An NSArray of GWMTriggerDefinition objects.
  */
-+(NSArray<GWMTriggerDefinition*>*)triggerDefinitionItems;
++(NSArray<GWMTriggerDefinition*>*_Nullable)triggerDefinitionItems;
 /*!
  *@brief Column to property mappings.
  *@return An NSDictionary containing column to property mappings where the key is the table column and the value is the object property.
  */
 +(NSDictionary<GWMColumnName,NSString*> *)tableColumnInfo;
 ///@return An NSArray of NSString objects derived from the tableColumnInfo method.
-+(NSArray<NSString*> *)tableColumns;
++(NSArray<GWMColumnName> *)tableColumns;
 ///@return An NSArray of NSString objects where each entry represents a desired table column when reading a list of GWMDataItems from the database.
-+(NSArray<NSString*> *)listTableColumns;
++(NSArray<GWMColumnName> *)listTableColumns;
 ///@return An NSArray of NSString objects where each entry represents a desired table column when reading a detail of a single GWMDataItem from the database.
-+(NSArray<NSString*> *)detailTableColumns;
++(NSArray<GWMColumnName> *)detailTableColumns;
 ///@return An NSString representing the table represented by the class.
 +(NSString *)tableString;
 /*!
@@ -231,10 +236,10 @@ extern GWMColumnName const GWMTableColumnPkey;
 extern GWMColumnName const GWMTableColumnName;
 ///@brief Represents the 'description' column in a SQLite table.
 extern GWMColumnName const GWMTableColumnDescription;
-///@brief Represents the 'inserted' column in a SQLite table.
-extern GWMColumnName const GWMTableColumnInserted;
-///@brief Represents the 'updated' column in a SQLite table.
-extern GWMColumnName const GWMTableColumnUpdated;
+///@brief Represents the 'insertDate' column in a SQLite table.
+extern GWMColumnName const GWMTableColumnInsertDate;
+///@brief Represents the 'updateDate' column in a SQLite table.
+extern GWMColumnName const GWMTableColumnUpdateDate;
 
 #pragma mark Error Domain
 extern NSErrorDomain const GWMErrorDomainDataModel;

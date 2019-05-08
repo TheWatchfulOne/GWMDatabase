@@ -15,6 +15,7 @@ typedef NSString *GWMTableName;
 typedef NSString *GWMTableAlias;
 typedef NSString *GWMColumnName;
 typedef NSString *GWMColumnAffinity;
+typedef NSString *GWMIndexName;
 typedef NSString *GWMTriggerName;
 typedef NSString *GWMConstraintName;
 
@@ -48,6 +49,14 @@ typedef NS_ENUM(NSInteger, GWMConstraintStyle) {
     GWMConstraintUnique,
     GWMConstraintCheck,
     GWMConstraintForeignKey
+};
+
+typedef NS_ENUM(NSInteger, GWMDBOnConflict) {
+    GWMDBOnConflictRollback = 0,
+    GWMDBOnConflictAbort,
+    GWMDBOnConflictFail,
+    GWMDBOnConflictIgnore,
+    GWMDBOnConflictReplace
 };
 
 NS_ASSUME_NONNULL_BEGIN
@@ -109,11 +118,17 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) GWMConstraintStyle style;
 ///@discussion An NSArray of NSStrings that represent the names of columns to be involved in the constraint.
 @property (nonatomic, readonly) NSArray<GWMColumnName> *columns;
+
+@property (nonatomic, readonly) GWMTableName _Nullable referenceTable;
+
+@property (nonatomic, readonly) GWMColumnName _Nullable referenceColumn;
+
+@property (nonatomic, readonly) GWMDBOnConflict onConflict;
 ///@discussion An NSString substring that will be used to build a SQLite SELECT statement.
 @property (nonatomic, readonly) NSString *body;
 
-+(instancetype)tableConstraintWithName:(GWMConstraintName)name style:(GWMConstraintStyle)style columns:(NSArray<GWMColumnName>*_Nullable)columns body:(NSString*)body;
--(instancetype)initWithName:(GWMConstraintName)name style:(GWMConstraintStyle)style columns:(NSArray<GWMColumnName>*_Nullable)columns body:(NSString*)body;
++(instancetype)tableConstraintWithName:(GWMConstraintName)name style:(GWMConstraintStyle)style columns:(NSArray<GWMColumnName>*_Nullable)columns referenceTable:(GWMTableName _Nullable)refTable referenceColumn:(GWMColumnName _Nullable)refColumn onConflict:(GWMDBOnConflict)onConflict;
+-(instancetype)initWithName:(GWMConstraintName)name style:(GWMConstraintStyle)style columns:(NSArray<GWMColumnName>*_Nullable)columns referenceTable:(GWMTableName _Nullable)refTable referenceColumn:(GWMColumnName _Nullable)refColumn onConflict:(GWMDBOnConflict)onConflict;
 
 @end
 
@@ -137,6 +152,28 @@ NS_ASSUME_NONNULL_BEGIN
 
 +(instancetype)tableDefinitionWithTable:(GWMTableName)table alias:(GWMTableAlias _Nullable)alias schema:(GWMSchemaName _Nullable)schema;
 -(instancetype)initWithTable:(GWMTableName)table alias:(GWMTableAlias _Nullable)alias schema:(GWMSchemaName _Nullable)schema;
+
+@end
+
+@interface GWMIndexDefinition : NSObject
+
+@property (nonatomic, readonly) GWMIndexName name;
+///@brief The name of the database where the index will be created.
+@property (nonatomic, readonly) GWMSchemaName _Nullable schema;
+///@brief The name of the table the index wil be created for.
+@property (nonatomic, readonly) GWMTableName table;
+
+typedef NSString *GWMIndexName;
+@property (nonatomic, readonly) NSArray<GWMColumnName> *columns;
+
+@property (nonatomic, readonly) NSString *whereExpression;
+
+@property (nonatomic, readonly) BOOL isUnique;
+
+@property (nonatomic, readonly) NSString *indexCreationString;
+
++(instancetype)indexDefintionWithName:(GWMIndexName)name table:(GWMTableName)table schema:(GWMSchemaName _Nullable)schema columns:(NSArray<GWMColumnName>*)columns where:(NSString*_Nullable)whereExpression unique:(BOOL)isUnique;
+-(instancetype)initWithName:(GWMIndexName)name table:(GWMTableName)table schema:(GWMSchemaName _Nullable)schema columns:(NSArray<GWMColumnName>*)columns where:(NSString*_Nullable)whereExpression unique:(BOOL)isUnique;
 
 @end
 
@@ -180,10 +217,36 @@ NS_ASSUME_NONNULL_BEGIN
  This pragma works like a query to return one row for each database attached to the current database connection. The second column is the "main" for the main database file, "temp" for the database file used to store TEMP objects, or the name of the ATTACHed database for other database files. The third column is the name of the database file itself, or an empty string if the database is not associated with a file.
  */
 
+/*!
+ * @class GWMDatabaseItem
+ * @discussion An instance of GWMDatabaseItem represents a row returned as a result of invoking PRAGMA database_list.
+ */
 @interface GWMDatabaseItem : NSObject
-
+///@brief The alias assigned to the database when using the ATTACH command.
 @property (nonatomic, strong) GWMSchemaName name;
+///@brief The filename of the database including the path.
 @property (nonatomic, strong) GWMDatabaseFileName filename;
+
+@end
+
+/*!
+ * @class GWMColumnItem
+ * @discussion An instance of GWMColumnItem represents a row returned as a result of invoking PRAGMA table_info(table-name).
+ */
+@interface GWMColumnItem : NSObject
+
+///@brief The column id.
+@property (nonatomic, assign) NSInteger columnId;
+///@brief An NSString representation of the column name.
+@property (nonatomic, strong) GWMColumnName name;
+///@brief An NSString representation of the column affinity.
+@property (nonatomic, strong) GWMColumnAffinity affinity;
+///@brief Whether or not the column can be null.
+@property (nonatomic, assign) BOOL notNull;
+///@brief The default value.
+@property (nonatomic, strong) NSString *defaultValue;
+///@brief The index of the column in the primary key for columns that are in the primmary key.
+@property (nonatomic, assign) NSInteger primaryKeyIndex;
 
 @end
 

@@ -88,20 +88,79 @@
 
 @implementation GWMTableConstraintDefinition
 
-+(instancetype)tableConstraintWithName:(GWMConstraintName)name style:(GWMConstraintStyle)style columns:(NSArray<GWMColumnName> *)columns body:(NSString *)body
++(instancetype)tableConstraintWithName:(GWMConstraintName)name style:(GWMConstraintStyle)style columns:(NSArray<GWMColumnName> *)columns referenceTable:(GWMTableName _Nullable)refTable referenceColumn:(GWMColumnName _Nullable)refColumn onConflict:(GWMDBOnConflict)onConflict
 {
-    return [[self alloc] initWithName:name style:style columns:columns body:body];
+    return [[self alloc] initWithName:name style:style columns:columns referenceTable:refTable referenceColumn:refColumn onConflict:onConflict];
 }
 
--(instancetype)initWithName:(GWMConstraintName)name style:(GWMConstraintStyle)style columns:(NSArray<GWMColumnName> *)columns body:(NSString *)body
+-(instancetype)initWithName:(GWMConstraintName)name style:(GWMConstraintStyle)style columns:(NSArray<GWMColumnName> *)columns referenceTable:(GWMTableName _Nullable)refTable referenceColumn:(GWMColumnName _Nullable)refColumn onConflict:(GWMDBOnConflict)onConflict
 {
     if (self = [super init]) {
         _name = name;
         _style = style;
         _columns = columns;
-        _body = body;
+        _referenceTable = refTable;
+        _referenceColumn= refColumn;
+        _onConflict = onConflict;
     }
     return self;
+}
+
+-(NSString *)body
+{
+    NSMutableString *mutableString = [NSMutableString stringWithFormat:@"CONSTRAINT %@",self.name];
+    switch (self.style) {
+        case GWMConstraintPrimaryKey:{
+            // CONSTRAINT %@ PRIMARY KEY
+            NSMutableString *mutableColumnString = [NSMutableString stringWithString: [self.columns componentsJoinedByString:@", "]];
+            [mutableString appendFormat:@" PRIMARY KEY (%@)",[NSString stringWithString:mutableColumnString]];
+            break;
+        }
+        case GWMConstraintForeignKey:
+            // CONSTRAINT %@ FOREIGN KEY (%@) REFERENCES Marker (markerKey) ON DELETE SET NULL ON UPDATE CASCADE
+            [mutableString appendFormat:@" FOREIGN KEY (%@) REFERENCES %@ (%@)",self.columns.firstObject,self.referenceTable,self.referenceColumn];
+            break;
+        case GWMConstraintCheck:
+            // CONSTRAINT %@ CHECK (%@)
+            [mutableString appendFormat:@" CHECK (%@)",@""];
+            break;
+        case GWMConstraintUnique:{
+            // CONSTRAINT %@ UNIQUE (%@ ASC, %@ ASC, %@ ASC) ON CONFLICT IGNORE
+            NSMutableString *mutableColumnString = [NSMutableString stringWithString: [self.columns componentsJoinedByString:@" ASC, "]];
+            [mutableColumnString appendString:@" ASC"];
+            [mutableString appendFormat:@" UNIQUE (%@)",[NSString stringWithString:mutableColumnString]];
+            break;
+        }
+        default:
+            break;
+    }
+    
+    if (self.style == GWMConstraintPrimaryKey || self.style == GWMConstraintUnique) {
+        switch (self.onConflict) {
+            case GWMDBOnConflictRollback:
+                [mutableString appendString: @" ON CONFLICT ROLLBACK"];
+                break;
+            case GWMDBOnConflictAbort:
+                [mutableString appendString: @" ON CONFLICT ABORT"];
+                break;
+            case GWMDBOnConflictFail:
+                [mutableString appendString: @" ON CONFLICT FAIL"];
+                break;
+            case GWMDBOnConflictIgnore:
+                [mutableString appendString: @" ON CONFLICT IGNORE"];
+                break;
+            case GWMDBOnConflictReplace:
+                [mutableString appendString: @" ON CONFLICT REPLACE"];
+                break;
+            default:
+                [mutableString appendString: @" ON CONFLICT ABORT"];
+                break;
+        }
+    } else if (self.style == GWMConstraintForeignKey){
+        [mutableString appendString: @" ON UPDATE CASCADE ON DELETE SET NULL"];
+    }
+    
+    return [NSString stringWithString:mutableString];
 }
 
 @end
@@ -121,6 +180,51 @@
         _schema = schema;
     }
     return self;
+}
+
+@end
+
+@implementation GWMIndexDefinition
+
++(instancetype)indexDefintionWithName:(GWMIndexName)name table:(GWMTableName)table schema:(GWMSchemaName)schema columns:(NSArray<GWMColumnName> *)columns where:(NSString *)whereExpression unique:(BOOL)isUnique
+{
+    return [[self alloc] initWithName:name table:table schema:schema columns:columns where:whereExpression unique:isUnique];
+}
+
+-(instancetype)initWithName:(GWMIndexName)name table:(GWMTableName)table schema:(GWMSchemaName)schema columns:(NSArray<GWMColumnName> *)columns where:(NSString *)whereExpression unique:(BOOL)isUnique
+{
+    if (self = [super init]) {
+        _name = name;
+        _table = table;
+        _schema = schema;
+        _columns = columns;
+        _whereExpression = whereExpression;
+        _isUnique = isUnique;
+    }
+    return self;
+}
+
+-(NSString *)indexCreationString
+{
+    NSMutableString *mutableString = nil;
+    if (self.isUnique)
+        mutableString = [[NSMutableString alloc] initWithString:@"CREATE UNIQUE INDEX IF NOT EXISTS"];
+    else
+        mutableString = [[NSMutableString alloc] initWithString:@"CREATE INDEX IF NOT EXISTS"];
+    
+    if(self.schema)
+        [mutableString appendString:[NSString stringWithFormat:@" %@.%@ ON", self.schema, self.name]];
+    else
+        [mutableString appendString:[NSString stringWithFormat:@" %@ ON", self.name]];
+    
+    NSString *columnString = [self.columns componentsJoinedByString:@", "];
+    
+    [mutableString appendFormat:@" %@ (%@)",self.table, columnString];
+    
+    if (self.whereExpression)
+        [mutableString appendFormat:@" %@",self.whereExpression];
+    
+    return [NSString stringWithString:mutableString];
 }
 
 @end
@@ -211,6 +315,10 @@
 @end
 
 @implementation GWMDatabaseItem
+
+@end
+
+@implementation GWMColumnItem
 
 @end
 

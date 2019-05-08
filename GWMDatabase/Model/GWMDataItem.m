@@ -29,8 +29,8 @@ GWMColumnName const GWMTableColumnClass = @"class";
 GWMColumnName const GWMTableColumnPkey = @"pKey";
 GWMColumnName const GWMTableColumnName = @"name";
 GWMColumnName const GWMTableColumnDescription = @"description";
-GWMColumnName const GWMTableColumnInserted = @"inserted";
-GWMColumnName const GWMTableColumnUpdated = @"updated";
+GWMColumnName const GWMTableColumnInsertDate = @"insertDate";
+GWMColumnName const GWMTableColumnUpdateDate = @"updateDate";
 
 #pragma mark Error Domain
 NSErrorDomain const GWMErrorDomainDataModel = @"GWMErrorDomainDataModel";
@@ -298,8 +298,8 @@ NSErrorDomain const GWMErrorDomainDataModel = @"GWMErrorDomainDataModel";
     return @{GWMTableColumnPkey:GWMTableColumnPkey,
              GWMTableColumnName:GWMTableColumnName,
              GWMTableColumnDescription:GWMTableColumnDescription,
-             GWMTableColumnInserted:GWMTableColumnInserted,
-             GWMTableColumnUpdated:GWMTableColumnUpdated};
+             GWMTableColumnInsertDate:GWMTableColumnInsertDate,
+             GWMTableColumnUpdateDate:GWMTableColumnUpdateDate};
 }
 
 +(NSArray<GWMColumnDefinition*>*)columnDefinitionItems
@@ -337,14 +337,14 @@ NSErrorDomain const GWMErrorDomainDataModel = @"GWMErrorDomainDataModel";
                                                      options:GWMColumnOptionNone
                                                    className:NSStringFromClass([self class])
                                                   sequence:2],
-             [GWMColumnDefinition columnDefinitionWithName:GWMTableColumnInserted
+             [GWMColumnDefinition columnDefinitionWithName:GWMTableColumnInsertDate
                                                     affinity:GWMColumnAffinityDateTime
                                                 defaultValue:@"(datetime('now'))" property:NSStringFromSelector(@selector(inserted))
                                                      include:includeInAll
                                                      options:GWMColumnOptionNone
                                                    className:NSStringFromClass([self class])
                                                   sequence:kGWMColumnSequenceInserted],
-             [GWMColumnDefinition columnDefinitionWithName:GWMTableColumnUpdated
+             [GWMColumnDefinition columnDefinitionWithName:GWMTableColumnUpdateDate
                                                     affinity:GWMColumnAffinityDateTime
                                                 defaultValue:nil
                                                     property:NSStringFromSelector(@selector(updated))
@@ -354,16 +354,12 @@ NSErrorDomain const GWMErrorDomainDataModel = @"GWMErrorDomainDataModel";
                                                   sequence:kGWMColumnSequenceUpdated]];
 }
 
-//+(NSDictionary<NSString*,NSString*> *_Nonnull)columnDefinitions
-//{
-//    return @{GWMTableColumnPkey:[NSString stringWithFormat:@"%@ %@ NOT NULL PRIMARY KEY AUTOINCREMENT",GWMColumnAffinityInteger,GWMTableColumnPkey],
-//             GWMTableColumnName:[NSString stringWithFormat:@"%@ %@", GWMColumnAffinityText, GWMTableColumnName],
-//             GWMTableColumnDescription:[NSString stringWithFormat:@"%@ %@", GWMColumnAffinityText,GWMTableColumnDescription],
-//             GWMTableColumnInserted:[NSString stringWithFormat:@"%@ %@ DEFAULT (datetime('now'))", GWMColumnAffinityDateTime,GWMTableColumnInserted],
-//             GWMTableColumnUpdated:[NSString stringWithFormat:@"%@ %@",GWMColumnAffinityDateTime,GWMTableColumnUpdated]};
-//}
++(NSArray<GWMTableConstraintDefinition*>*)constraintDefinitionItems
+{
+    return @[[GWMTableConstraintDefinition tableConstraintWithName:@"un_DataItem_name" style:GWMConstraintUnique columns:@[GWMTableColumnName] referenceTable:nil referenceColumn:nil onConflict:GWMDBOnConflictRollback]];
+}
 
-+(NSDictionary<NSString*,NSString*> *_Nullable)constraintDefinitions
++(NSArray<GWMIndexDefinition*>*)indexDefinitionItems
 {
     return nil;
 }
@@ -384,7 +380,7 @@ NSErrorDomain const GWMErrorDomainDataModel = @"GWMErrorDomainDataModel";
     return [NSDictionary dictionaryWithDictionary:mutableColumnInfo];
 }
 
-+(NSArray<NSString*> *)tableColumns
++(NSArray<GWMColumnName> *)tableColumns
 {
     NSMutableArray<NSString*> *mutableColumnDefs = [NSMutableArray<NSString*> new];
     [[self columnDefinitionItems] enumerateObjectsUsingBlock:^(GWMColumnDefinition *_Nonnull definition, NSUInteger idx, BOOL *_Nonnull stop){
@@ -393,7 +389,7 @@ NSErrorDomain const GWMErrorDomainDataModel = @"GWMErrorDomainDataModel";
     return [NSArray<NSString*> arrayWithArray:mutableColumnDefs];
 }
 
-+(NSArray<NSString*> *)listTableColumns
++(NSArray<GWMColumnName> *)listTableColumns
 {
     NSMutableArray<NSString*> *mutableColumnDefs = [NSMutableArray<NSString*> new];
     [[self columnDefinitionItems] enumerateObjectsUsingBlock:^(GWMColumnDefinition *_Nonnull definition, NSUInteger idx, BOOL *_Nonnull stop){
@@ -403,7 +399,7 @@ NSErrorDomain const GWMErrorDomainDataModel = @"GWMErrorDomainDataModel";
     return [NSArray<NSString*> arrayWithArray:mutableColumnDefs];
 }
 
-+(NSArray<NSString*> *)detailTableColumns
++(NSArray<GWMColumnName> *)detailTableColumns
 {
     NSMutableArray<NSString*> *mutableColumnDefs = [NSMutableArray<NSString*> new];
     [[self columnDefinitionItems] enumerateObjectsUsingBlock:^(GWMColumnDefinition *_Nonnull definition, NSUInteger idx, BOOL *_Nonnull stop){
